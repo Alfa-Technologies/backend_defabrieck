@@ -1,0 +1,1150 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+type Employee {
+  id: ID!
+  firstName: String!
+  lastName: String!
+  email: String
+  phoneNumber: String
+  user: User
+  userId: String
+  employeeCode: String!
+  position: String!
+  department: String!
+  isActive: Boolean!
+  createdAt: String!
+  updatedAt: String!
+  displayName: String!
+}
+
+type Plant {
+  id: ID!
+  name: String!
+  address: String
+  city: String
+  state: String
+  companyId: String!
+  company: Company!
+  isActive: Boolean!
+  createdAt: String!
+  updatedAt: String!
+}
+
+type DefectType {
+  id: ID!
+  name: String!
+  part: PartCatalog!
+  description: String
+  isActive: Boolean!
+  createdAt: String!
+  updatedAt: String!
+}
+
+type ReportType {
+  id: ID!
+  name: String!
+  defaultSchema: JSON
+  isActive: Boolean!
+  createdAt: String!
+  updatedAt: String!
+}
+
+"""
+The `JSON` scalar type represents JSON values as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf).
+"""
+scalar JSON
+
+type ProjectReportConfig {
+  id: ID!
+  project: Project!
+  finalSchema: JSON!
+  isActive: Boolean!
+  createdAt: String!
+  updatedAt: String!
+  firebasePath: String!
+}
+
+type ProjectProcessFlow {
+  id: ID!
+  project: Project!
+  projectId: String!
+  name: String!
+  description: String
+  flowData: JSON!
+  version: Int!
+  status: String!
+  isCurrent: Boolean!
+  createdBy: User!
+  createdById: String!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
+type ProjectLog {
+  id: ID!
+  project: Project!
+  projectId: String!
+  entityName: String!
+  entityId: String!
+  actionType: String!
+  oldData: JSON
+  newData: JSON
+  reason: String
+  modifiedBy: User!
+  modifiedById: String!
+  modifiedAt: DateTime!
+}
+
+type Shift {
+  id: ID!
+  plant: Plant!
+  plantId: String!
+  project: Project!
+  projectId: String!
+  name: String!
+  startTime: String!
+  endTime: String!
+  isActive: Boolean!
+  workDays: [String!]
+  createdAt: String!
+  updatedAt: String!
+}
+
+type Project {
+  id: ID!
+  customer: Company!
+  finalCustomer: Company!
+  plant: Plant!
+  reportType: ReportType!
+  customerContact: CompanyContact!
+  finalCustomerContact: CompanyContact!
+  internalLead: Employee!
+  status: String!
+  activeRejectionReason: String
+  customerSignedAt: DateTime
+  finalCustomerSignedAt: DateTime
+  internalSignedAt: DateTime
+  customerSignatureUrl: String
+  finalCustomerSignatureUrl: String
+  internalSignatureUrl: String
+  jobDescription: String!
+  scope: String!
+  startDate: String
+  endDateEst: String
+  inspectorsAssigned: Int!
+  inspectionVerificationText: String
+  cleanPointDate: String!
+  requiresRework: Boolean!
+  reworkVerificationText: String
+  verificationMethods: JSON!
+  environmentConditions: JSON!
+  requiredShifts: JSON!
+  unitPrice: Float
+  pieceCount: Int
+  billingType: String
+  isActive: Boolean!
+  createdAt: String!
+  updatedAt: String!
+  logs: [ProjectLog!]
+  shifts: [Shift!]
+  processFlows: [ProjectProcessFlow!]
+  parts: [ProjectPart!]
+}
+
+type ProjectPart {
+  id: ID!
+  project: Project!
+  partCatalog: PartCatalog!
+  internalPartNumber: String
+  description: String
+  isActive: Boolean!
+  createdAt: String!
+  updatedAt: String!
+}
+
+type PartCatalog {
+  id: ID!
+  partNumber: String!
+  description: String
+  customer: Company!
+  isActive: Boolean!
+  defectTypes: [DefectType!]!
+  projectParts: [ProjectPart!]!
+  createdAt: String!
+  updatedAt: String!
+}
+
+type Company {
+  id: ID!
+  commercialName: String!
+  legalName: String!
+  taxId: String
+  billingAddress: String
+  isActive: Boolean!
+  createdAt: String!
+  updatedAt: String!
+  plants: [Plant]
+  partCatalogs: [PartCatalog!]
+  companyContacts: [CompanyContact!]
+}
+
+type CompanyContact {
+  id: ID!
+  firstName: String!
+  lastName: String!
+  email: String
+  phoneNumber: String
+  user: User
+  userId: String
+  company: Company!
+  position: String!
+  isPrimary: Boolean!
+  isActive: Boolean!
+  createdAt: String!
+  updatedAt: String!
+  displayName: String!
+}
+
+type User {
+  id: ID!
+  email: String!
+  roles: [ValidRoles!]!
+  isActive: Boolean!
+  createdBy: String
+  createdAt: String
+  lastUpdateBy: String
+  lastUpdate: String
+  employee: Employee
+  companyContact: CompanyContact
+}
+
+"""User roles in the system"""
+enum ValidRoles {
+  superUser
+  admin
+  finalCustomer
+  customer
+  director
+  manager
+  coordinator
+  supervisor
+  operator
+  user
+}
+
+type AuthResponse {
+  token: String!
+  user: User!
+}
+
+type VisualAidLog {
+  id: ID!
+  visualAid: VisualAidDocument!
+  visualAidId: String!
+  version: Int!
+
+  """CREATE, UPDATE_CONTENT, UPDATE_IMAGE, APPROVE, REJECT"""
+  actionType: String!
+  oldData: JSON
+  newData: JSON
+  reason: String
+  modifiedBy: User!
+  modifiedById: String!
+  modifiedAt: DateTime!
+}
+
+type VisualAidDocument {
+  id: ID!
+  projectPart: ProjectPart!
+  documentCode: String!
+  operationName: String!
+  ppeDescription: String
+  currentRevision: String!
+  currentRevisionDate: String!
+  prevRevision: String
+  prevRevisionDate: String
+  status: VisualAidStatus!
+  activeRejectionReason: String
+  customerSignedAt: DateTime
+  finalCustomerSignedAt: DateTime
+  internalSignedAt: DateTime
+  customerSignatureUrl: String
+  finalCustomerSignatureUrl: String
+  internalSignatureUrl: String
+  isActive: Boolean!
+  createdAt: String!
+  updatedAt: String!
+  logs: [VisualAidLog!]
+}
+
+enum VisualAidStatus {
+  DRAFT
+  PENDING_APPROVAL
+  APPROVED
+  ACTIVE
+  REJECTED
+  INACTIVE
+}
+
+type VisualAidItem {
+  id: ID!
+  defectType: DefectType
+  defectTypeId: String
+  visualAidDocument: VisualAidDocument!
+  displayOrder: Int!
+  defectName: String!
+  what: String!
+  how: String!
+  why: String!
+  imageOkUrl: String
+  imageNokUrl: String
+  isActive: Boolean!
+  createdAt: String!
+  updatedAt: String!
+}
+
+type DowntimeReason {
+  id: ID!
+  code: String!
+  name: String!
+  isBillable: Boolean!
+  category: String!
+  isActive: Boolean!
+  createdAt: String!
+  updatedAt: String!
+}
+
+type Lot {
+  id: ID!
+  project: Project!
+  lotNumber: String!
+  totalQuantity: Int!
+  status: String!
+  receivedAt: DateTime!
+  isActive: Boolean!
+  createdAt: String!
+  updatedAt: String!
+}
+
+type PersonnelAssignment {
+  id: ID!
+  employee: Employee!
+  employeeId: String!
+  plant: Plant!
+  plantId: String!
+  shift: Shift!
+  shiftId: String!
+  startDate: String!
+  endDate: String!
+  isActive: Boolean!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type DowntimeLog {
+  id: ID!
+  project: Project!
+  projectId: String!
+  employee: Employee
+  employeeId: String
+  downtimeReason: DowntimeReason!
+  downtimeReasonId: String!
+  startTime: DateTime!
+  endTime: DateTime
+
+  """Duración en minutos calculada automáticamente"""
+  minutes: Int
+  comments: String
+  isClosed: Boolean!
+}
+
+type QualityAudit {
+  id: ID!
+  project: Project!
+  projectId: String!
+  auditor: User!
+  auditorId: String!
+  targetEmployee: Employee!
+  targetEmployeeId: String!
+  score: Int!
+  status: String!
+  checklistBody: JSON!
+  evidencePhotos: JSON
+  comments: String
+  createdAt: DateTime!
+}
+
+type PpeCheck {
+  id: ID!
+  project: Project!
+  projectId: String!
+  auditor: User!
+  auditorId: String!
+  targetEmployee: Employee!
+  targetEmployeeId: String!
+  status: String!
+  checklistBody: JSON!
+  evidencePhotos: JSON
+  comments: String
+  createdAt: DateTime!
+}
+
+type AttendanceLog {
+  id: ID!
+  employee: Employee!
+  employeeId: String!
+  plant: Plant!
+  plantId: String!
+
+  """CHECK_IN or CHECK_OUT"""
+  type: String!
+
+  """GPS, MANUAL"""
+  method: String!
+  latitude: Float
+  longitude: Float
+  createdBy: User
+  createdById: String
+  timestamp: DateTime!
+}
+
+type Notification {
+  id: ID!
+  user: User!
+  userId: String!
+  title: String!
+  message: String!
+  type: String!
+  isRead: Boolean!
+  metadata: JSON
+  createdAt: DateTime!
+}
+
+type Template {
+  id: ID!
+  code: String!
+  type: String!
+  title: String!
+  subject: String
+  content: String!
+  createdAt: DateTime!
+  lastUpdate: DateTime!
+}
+
+type Query {
+  revalite: AuthResponse!
+  users(
+    roles: [ValidRoles!] = []
+
+    """Número de registros a omitir"""
+    offset: Int = 0
+
+    """Límite de registros por página"""
+    limit: Int = 10
+  ): [User!]!
+  user(id: ID!): User!
+  employees(
+    """Número de registros a omitir"""
+    offset: Int = 0
+
+    """Límite de registros por página"""
+    limit: Int = 10
+  ): [Employee!]!
+  employee(id: ID!): Employee!
+  companies(
+    """Número de registros a omitir"""
+    offset: Int = 0
+
+    """Límite de registros por página"""
+    limit: Int = 10
+  ): [Company!]!
+  company(id: ID!): Company!
+  plants(
+    """Número de registros a omitir"""
+    offset: Int = 0
+
+    """Límite de registros por página"""
+    limit: Int = 10
+  ): [Plant!]!
+  plant(id: ID!): Plant!
+  companyContacts(
+    """Número de registros a omitir"""
+    offset: Int = 0
+
+    """Límite de registros por página"""
+    limit: Int = 10
+  ): [CompanyContact!]!
+  companyContact(id: ID!): CompanyContact!
+  reportTypes(
+    """Número de registros a omitir"""
+    offset: Int = 0
+
+    """Límite de registros por página"""
+    limit: Int = 10
+  ): [ReportType!]!
+  reportType(id: ID!): ReportType!
+  partCatalogs(
+    """Número de registros a omitir"""
+    offset: Int = 0
+
+    """Límite de registros por página"""
+    limit: Int = 10
+  ): [PartCatalog!]!
+  partCatalog(id: ID!): PartCatalog!
+  visualAidDocuments(
+    """Número de registros a omitir"""
+    offset: Int = 0
+
+    """Límite de registros por página"""
+    limit: Int = 10
+  ): [VisualAidDocument!]!
+  visualAidDocument(id: ID!): VisualAidDocument!
+  visualAidItems(
+    """Número de registros a omitir"""
+    offset: Int = 0
+
+    """Límite de registros por página"""
+    limit: Int = 10
+  ): [VisualAidItem!]!
+  visualAidItem(id: ID!): VisualAidItem!
+  defectTypes(
+    """Número de registros a omitir"""
+    offset: Int = 0
+
+    """Límite de registros por página"""
+    limit: Int = 10
+    partId: String
+  ): [DefectType!]!
+  defectType(id: ID!): DefectType!
+  downtimeReasons(
+    """Número de registros a omitir"""
+    offset: Int = 0
+
+    """Límite de registros por página"""
+    limit: Int = 10
+  ): [DowntimeReason!]!
+  downtimeReason(id: ID!): DowntimeReason!
+  projects(
+    """Número de registros a omitir"""
+    offset: Int = 0
+
+    """Límite de registros por página"""
+    limit: Int = 10
+  ): [Project!]!
+  project(id: ID!): Project!
+  shifts(
+    """Número de registros a omitir"""
+    offset: Int = 0
+
+    """Límite de registros por página"""
+    limit: Int = 10
+  ): [Shift!]!
+  shift(id: ID!): Shift!
+  projectParts(
+    """Número de registros a omitir"""
+    offset: Int = 0
+
+    """Límite de registros por página"""
+    limit: Int = 10
+  ): [ProjectPart!]!
+  projectPart(id: ID!): ProjectPart!
+  projectReportConfigs(
+    """Número de registros a omitir"""
+    offset: Int = 0
+
+    """Límite de registros por página"""
+    limit: Int = 10
+  ): [ProjectReportConfig!]!
+  projectReportConfig(id: ID!): ProjectReportConfig!
+  projectReportConfigByProject(projectId: ID!): ProjectReportConfig
+  lots(
+    """Número de registros a omitir"""
+    offset: Int = 0
+
+    """Límite de registros por página"""
+    limit: Int = 10
+  ): [Lot!]!
+  lot(id: ID!): Lot!
+  personnelAssignments(
+    """Número de registros a omitir"""
+    offset: Int = 0
+
+    """Límite de registros por página"""
+    limit: Int = 10
+  ): [PersonnelAssignment!]!
+  personnelAssignment(id: ID!): PersonnelAssignment!
+  downtimeLogs(
+    """Número de registros a omitir"""
+    offset: Int = 0
+
+    """Límite de registros por página"""
+    limit: Int = 10
+  ): [DowntimeLog!]!
+  downtimeLog(id: ID!): DowntimeLog!
+  downtimeLogsByProject(
+    projectId: String!
+
+    """Número de registros a omitir"""
+    offset: Int = 0
+
+    """Límite de registros por página"""
+    limit: Int = 10
+  ): [DowntimeLog!]!
+  qualityAudits(
+    """Número de registros a omitir"""
+    offset: Int = 0
+
+    """Límite de registros por página"""
+    limit: Int = 10
+  ): [QualityAudit!]!
+  qualityAudit(id: ID!): QualityAudit!
+  qualityAuditsByProject(projectId: ID!): [QualityAudit!]!
+  ppeChecks(
+    """Número de registros a omitir"""
+    offset: Int = 0
+
+    """Límite de registros por página"""
+    limit: Int = 10
+  ): [PpeCheck!]!
+  ppeCheck(id: ID!): PpeCheck!
+  ppeChecksByProject(projectId: ID!): [PpeCheck!]!
+  attendanceLogs(
+    """Número de registros a omitir"""
+    offset: Int = 0
+
+    """Límite de registros por página"""
+    limit: Int = 10
+  ): [AttendanceLog!]!
+  attendanceByEmployee(employeeId: ID!): [AttendanceLog!]!
+  activeEmployeesInPlant(plantId: ID!): [AttendanceLog!]!
+  myNotifications(unreadOnly: Boolean! = false): [Notification!]!
+  templates(
+    """Número de registros a omitir"""
+    offset: Int = 0
+
+    """Límite de registros por página"""
+    limit: Int = 10
+  ): [Template!]!
+  templateByCode(code: String!): Template!
+}
+
+type Mutation {
+  login(loginInput: LoginInput!): AuthResponse!
+  createUser(createUserInput: CreateUserInput!): User!
+  updateUser(updateUserInput: UpdateUserInput!): User!
+  changeUserStatus(id: ID!, isActive: Boolean!): User!
+  createEmployee(createEmployeeInput: CreateEmployeeInput!): Employee!
+  updateEmployee(updateEmployeeInput: UpdateEmployeeInput!): Employee!
+  removeEmployee(id: ID!, isActive: Boolean!): Employee!
+  createCompany(createCompanyInput: CreateCompanyInput!): Company!
+  updateCompany(updateCompanyInput: UpdateCompanyInput!): Company!
+  removeCompany(id: ID!, isActive: Boolean! = false): Company!
+  createPlant(createPlantInput: CreatePlantInput!): Plant!
+  updatePlant(updatePlantInput: UpdatePlantInput!): Plant!
+  removePlant(id: ID!, isActive: Boolean! = false): Plant!
+  createCompanyContact(createCompanyContactInput: CreateCompanyContactInput!): CompanyContact!
+  updateCompanyContact(updateCompanyContactInput: UpdateCompanyContactInput!): CompanyContact!
+  removeCompanyContact(id: ID!, isActive: Boolean! = false): CompanyContact!
+  createReportType(createReportTypeInput: CreateReportTypeInput!): ReportType!
+  updateReportType(updateReportTypeInput: UpdateReportTypeInput!): ReportType!
+  removeReportType(id: ID!, isActive: Boolean! = false): ReportType!
+  createPartCatalog(createPartCatalogInput: CreatePartCatalogInput!): PartCatalog!
+  updatePartCatalog(updatePartCatalogInput: UpdatePartCatalogInput!): PartCatalog!
+  removePartCatalog(id: ID!, isActive: Boolean! = false): PartCatalog!
+  createVisualAidDocument(createVisualAidDocumentInput: CreateVisualAidDocumentInput!): VisualAidDocument!
+  updateVisualAidDocument(updateVisualAidDocumentInput: UpdateVisualAidDocumentInput!): VisualAidDocument!
+  removeVisualAidDocument(id: ID!, isActive: Boolean! = false): VisualAidDocument!
+  signVisualAidAsCustomer(id: ID!, signatureUrl: String!): VisualAidDocument!
+  signVisualAidAsFinalCustomer(id: ID!, signatureUrl: String!): VisualAidDocument!
+  signVisualAidAsInternal(id: ID!, signatureUrl: String!): VisualAidDocument!
+  createVisualAidItem(createVisualAidItemInput: CreateVisualAidItemInput!): VisualAidItem!
+  updateVisualAidItem(updateVisualAidItemInput: UpdateVisualAidItemInput!): VisualAidItem!
+  removeVisualAidItem(id: ID!, isActive: Boolean! = false): VisualAidItem!
+  createDefectType(createDefectTypeInput: CreateDefectTypeInput!): DefectType!
+  updateDefectType(updateDefectTypeInput: UpdateDefectTypeInput!): DefectType!
+  removeDefectType(id: ID!, isActive: Boolean!): DefectType!
+  createDowntimeReason(createDowntimeReasonInput: CreateDowntimeReasonInput!): DowntimeReason!
+  updateDowntimeReason(updateDowntimeReasonInput: UpdateDowntimeReasonInput!): DowntimeReason!
+  removeDowntimeReason(id: ID!, isActive: Boolean!): DowntimeReason!
+  createProject(createProjectInput: CreateProjectInput!): Project!
+  updateProject(updateProjectInput: UpdateProjectInput!): Project!
+  removeProject(id: ID!, isActive: Boolean! = false): Project!
+  addProcessFlowToProject(createProcessFlowInput: CreateProcessFlowInput!): ProjectProcessFlow!
+  signProjectAsCustomer(projectId: String!, signatureUrl: String!): Project!
+  signProjectAsFinalCustomer(projectId: String!, signatureUrl: String!): Project!
+  signProjectAsInternal(projectId: String!, signatureUrl: String!): Project!
+  createShift(createShiftInput: CreateShiftInput!): Shift!
+  updateShift(updateShiftInput: UpdateShiftInput!): Shift!
+  removeShift(id: ID!, isActive: Boolean!): Shift!
+  createProjectPart(createProjectPartInput: CreateProjectPartInput!): ProjectPart!
+  updateProjectPart(updateProjectPartInput: UpdateProjectPartInput!): ProjectPart!
+  removeProjectPart(id: ID!, isActive: Boolean! = false): ProjectPart!
+  createProjectReportConfig(createProjectReportConfigInput: CreateProjectReportConfigInput!): ProjectReportConfig!
+  updateProjectReportConfig(updateProjectReportConfigInput: UpdateProjectReportConfigInput!): ProjectReportConfig!
+  removeProjectReportConfig(id: ID!, isActive: Boolean!): ProjectReportConfig!
+  createLot(createLotInput: CreateLotInput!): Lot!
+  updateLot(updateLotInput: UpdateLotInput!): Lot!
+  removeLot(id: ID!, isActive: Boolean!): Lot!
+  createPersonnelAssignment(createPersonnelAssignmentInput: CreatePersonnelAssignmentInput!): PersonnelAssignment!
+  updatePersonnelAssignment(updatePersonnelAssignmentInput: UpdatePersonnelAssignmentInput!): PersonnelAssignment!
+  removePersonnelAssignment(id: ID!, isActive: Boolean!): PersonnelAssignment!
+  createDowntimeLog(createDowntimeLogInput: CreateDowntimeLogInput!): DowntimeLog!
+  updateDowntimeLog(updateDowntimeLogInput: UpdateDowntimeLogInput!): DowntimeLog!
+  removeDowntimeLog(id: ID!): DowntimeLog!
+  createQualityAudit(createQualityAuditInput: CreateQualityAuditInput!): QualityAudit!
+  createPpeCheck(createPpeCheckInput: CreatePpeCheckInput!): PpeCheck!
+  removePpeCheck(id: ID!): PpeCheck!
+  createAttendance(createAttendanceInput: CreateAttendanceInput!): AttendanceLog!
+  updateAttendance(updateAttendanceInput: UpdateAttendanceInput!): AttendanceLog!
+  createNotification(createNotificationInput: CreateNotificationInput!): Notification!
+  markNotificationAsRead(id: ID!): Notification!
+  markAllNotificationsAsRead: Boolean!
+  createTemplate(createTemplateInput: CreateTemplateInput!): Template!
+  updateTemplate(updateTemplateInput: UpdateTemplateInput!): Template!
+  removeTemplate(id: ID!): Template!
+}
+
+input LoginInput {
+  email: String!
+  password: String!
+}
+
+input CreateUserInput {
+  email: String!
+  password: String!
+  roles: [ValidRoles!]!
+  employeeId: String
+  companyContactId: String
+}
+
+input UpdateUserInput {
+  email: String
+  password: String
+  roles: [ValidRoles!]
+  employeeId: String
+  companyContactId: String
+  id: ID!
+}
+
+input CreateEmployeeInput {
+  userId: String
+  firstName: String!
+  lastName: String!
+  email: String
+  phoneNumber: String
+  employeeCode: String!
+  position: String!
+  department: String!
+}
+
+input UpdateEmployeeInput {
+  userId: String
+  firstName: String
+  lastName: String
+  email: String
+  phoneNumber: String
+  employeeCode: String
+  position: String
+  department: String
+  id: ID!
+}
+
+input CreateCompanyInput {
+  commercialName: String!
+  legalName: String!
+  taxId: String
+  billingAddress: String
+}
+
+input UpdateCompanyInput {
+  commercialName: String
+  legalName: String
+  taxId: String
+  billingAddress: String
+  id: ID!
+}
+
+input CreatePlantInput {
+  name: String!
+  companyId: String!
+  address: String
+  city: String
+  state: String
+}
+
+input UpdatePlantInput {
+  name: String
+  companyId: String
+  address: String
+  city: String
+  state: String
+  id: ID!
+}
+
+input CreateCompanyContactInput {
+  userId: String
+  firstName: String!
+  lastName: String!
+  email: String
+  phoneNumber: String
+  companyId: String!
+  position: String!
+  isPrimary: Boolean
+}
+
+input UpdateCompanyContactInput {
+  userId: String
+  firstName: String
+  lastName: String
+  email: String
+  phoneNumber: String
+  companyId: String
+  position: String
+  isPrimary: Boolean
+  id: String!
+}
+
+input CreateReportTypeInput {
+  name: String!
+  defaultSchema: JSON
+}
+
+input UpdateReportTypeInput {
+  name: String
+  defaultSchema: JSON
+  id: ID!
+}
+
+input CreatePartCatalogInput {
+  partNumber: String!
+  description: String
+  customerId: String!
+}
+
+input UpdatePartCatalogInput {
+  partNumber: String
+  description: String
+  customerId: String
+  id: ID!
+}
+
+input CreateVisualAidDocumentInput {
+  projectPartId: String!
+  documentCode: String!
+  operationName: String!
+  ppeDescription: String
+  currentRevision: String
+  currentRevisionDate: String
+  status: String
+}
+
+input UpdateVisualAidDocumentInput {
+  projectPartId: String
+  documentCode: String
+  operationName: String
+  ppeDescription: String
+  currentRevision: String
+  currentRevisionDate: String
+  status: VisualAidStatus
+  id: ID!
+  activeRejectionReason: String
+}
+
+input CreateVisualAidItemInput {
+  visualAidDocumentId: String!
+  defectTypeId: String
+  displayOrder: Int!
+  defectName: String!
+  what: String!
+  how: String!
+  why: String!
+  imageOkUrl: String
+  imageNokUrl: String
+}
+
+input UpdateVisualAidItemInput {
+  visualAidDocumentId: String
+  defectTypeId: String
+  displayOrder: Int
+  defectName: String
+  what: String
+  how: String
+  why: String
+  imageOkUrl: String
+  imageNokUrl: String
+  id: ID!
+}
+
+input CreateDefectTypeInput {
+  name: String!
+  description: String
+  partId: String!
+}
+
+input UpdateDefectTypeInput {
+  name: String
+  description: String
+  partId: String
+  id: ID!
+}
+
+input CreateDowntimeReasonInput {
+  code: String!
+  name: String!
+  isBillable: Boolean!
+  category: String!
+}
+
+input UpdateDowntimeReasonInput {
+  code: String
+  name: String
+  isBillable: Boolean
+  category: String
+  id: ID!
+}
+
+input CreateProjectInput {
+  customerId: String!
+  finalCustomerId: String!
+  plantId: String!
+  reportTypeId: String!
+  internalLeadId: String!
+  customerContactId: String!
+  finalCustomerContactId: String!
+  jobDescription: String!
+  scope: String!
+  startDate: String!
+  endDateEst: String
+  inspectorsAssigned: Int!
+  inspectionVerificationText: String
+  cleanPointDate: String!
+  requiresRework: Boolean!
+  reworkVerificationText: String
+  verificationMethods: JSON!
+  environmentConditions: JSON!
+  requiredShifts: [ShiftType!]
+  unitPrice: Float
+  pieceCount: Int
+  billingType: String
+  status: String
+}
+
+enum ShiftType {
+  MORNING
+  AFTERNOON
+  NIGHT
+  MIXED
+}
+
+input UpdateProjectInput {
+  customerId: String
+  finalCustomerId: String
+  plantId: String
+  reportTypeId: String
+  internalLeadId: String
+  customerContactId: String
+  finalCustomerContactId: String
+  jobDescription: String
+  scope: String
+  startDate: String
+  endDateEst: String
+  inspectorsAssigned: Int
+  inspectionVerificationText: String
+  cleanPointDate: String
+  requiresRework: Boolean
+  reworkVerificationText: String
+  verificationMethods: JSON
+  environmentConditions: JSON
+  requiredShifts: [ShiftType!]
+  unitPrice: Float
+  pieceCount: Int
+  billingType: String
+  status: String
+  id: ID!
+  activeRejectionReason: String
+}
+
+input CreateProcessFlowInput {
+  projectId: String!
+  name: String!
+  description: String
+  flowData: JSON!
+}
+
+input CreateShiftInput {
+  plantId: String!
+  projectId: String
+  name: String!
+  startTime: String!
+  endTime: String!
+  workDays: [DayOfWeek!]
+}
+
+enum DayOfWeek {
+  MONDAY
+  TUESDAY
+  WEDNESDAY
+  THURSDAY
+  FRIDAY
+  SATURDAY
+  SUNDAY
+}
+
+input UpdateShiftInput {
+  plantId: String
+  projectId: String
+  name: String
+  startTime: String
+  endTime: String
+  workDays: [DayOfWeek!]
+  id: ID!
+}
+
+input CreateProjectPartInput {
+  projectId: String!
+  partCatalogId: String!
+  internalPartNumber: String!
+  description: String
+}
+
+input UpdateProjectPartInput {
+  projectId: String
+  partCatalogId: String
+  internalPartNumber: String
+  description: String
+  id: ID!
+}
+
+input CreateProjectReportConfigInput {
+  projectId: String!
+  finalSchema: JSON!
+}
+
+input UpdateProjectReportConfigInput {
+  projectId: String
+  finalSchema: JSON
+  id: ID!
+}
+
+input CreateLotInput {
+  projectId: String!
+  lotNumber: String!
+  totalQuantity: Int!
+  receivedAt: String
+}
+
+input UpdateLotInput {
+  projectId: String
+  lotNumber: String
+  totalQuantity: Int
+  receivedAt: String
+  id: ID!
+}
+
+input CreatePersonnelAssignmentInput {
+  employeeId: String!
+  plantId: String!
+  shiftId: String!
+  startDate: String!
+  endDate: String!
+}
+
+input UpdatePersonnelAssignmentInput {
+  employeeId: String
+  plantId: String
+  shiftId: String
+  startDate: String
+  endDate: String
+  id: ID!
+}
+
+input CreateDowntimeLogInput {
+  projectId: String!
+  downtimeReasonId: String!
+  employeeId: String!
+  startTime: DateTime
+  comments: String
+}
+
+input UpdateDowntimeLogInput {
+  projectId: String
+  downtimeReasonId: String
+  employeeId: String
+  startTime: DateTime
+  comments: String
+  id: ID!
+  endTime: DateTime
+}
+
+input CreateQualityAuditInput {
+  projectId: String!
+  targetEmployeeId: String!
+  score: Int!
+  status: String!
+  checklistBody: JSON!
+  evidencePhotos: JSON
+  comments: String
+}
+
+input CreatePpeCheckInput {
+  projectId: String!
+  targetEmployeeId: String!
+  status: String!
+  checklistBody: JSON!
+  evidencePhotos: JSON
+  comments: String
+}
+
+input CreateAttendanceInput {
+  employeeId: String!
+  plantId: String!
+  type: String!
+  method: String!
+  latitude: Float
+  longitude: Float
+  timestamp: DateTime
+}
+
+input UpdateAttendanceInput {
+  employeeId: String
+  plantId: String
+  type: String
+  method: String
+  latitude: Float
+  longitude: Float
+  timestamp: DateTime
+  id: ID!
+  reason: String
+}
+
+input CreateNotificationInput {
+  userId: String!
+  title: String!
+  message: String!
+  type: String!
+  metadata: JSON
+}
+
+input CreateTemplateInput {
+  code: String!
+  type: String!
+  title: String!
+  subject: String
+  content: String!
+}
+
+input UpdateTemplateInput {
+  code: String
+  type: String
+  title: String
+  subject: String
+  content: String
+  id: ID!
+}

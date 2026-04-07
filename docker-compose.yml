@@ -1,0 +1,28 @@
+version: '3.8'
+
+services:
+  # Backend NestJS
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: defabrieck-api
+    restart: always
+    ports:
+      - '3000:3000'
+    environment:
+      # Variables de base de datos remota
+      DB_HOST: main-panel.eathon.ai
+      DB_PORT: 5432
+      DB_USERNAME: postgres
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_NAME: defabrieck_os
+      DB_SSL: 'false'
+      # JWT
+      JWT_SECRET: tu_secreto_super_seguro_cambiar_en_produccion
+      # Otras variables
+      NODE_ENV: development
+      PORT: 3000
+    volumes:
+      - ./src:/app/src
+      - ./uploads:/app/uploads
