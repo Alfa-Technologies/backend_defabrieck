@@ -26,7 +26,7 @@ async function bootstrap() {
     origin: [
       'http://localhost:3000',
       'http://localhost:5173',
-      'https://tu-dominio.com',
+      'https://as.defabrieck.com',
       process.env.FRONTEND_URL,
     ].filter(Boolean),
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
