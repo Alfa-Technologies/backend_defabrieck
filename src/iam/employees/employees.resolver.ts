@@ -6,6 +6,7 @@ import {
   ID,
   ResolveField,
   Parent,
+  Float,
 } from '@nestjs/graphql';
 import { ParseUUIDPipe } from '@nestjs/common';
 import { EmployeesService } from './employees.service';
@@ -54,6 +55,14 @@ export class EmployeesResolver {
     @Args('isActive', { type: () => Boolean }) isActive: boolean,
   ): Promise<Employee> {
     return this.employeesService.remove(id, isActive);
+  }
+
+  @Mutation(() => Employee, { name: 'updateEmployeeSalary' })
+  updateEmployeeSalary(
+    @Args('id', { type: () => ID }, ParseUUIDPipe) id: string,
+    @Args('dailySalary', { type: () => Float }) dailySalary: number,
+  ): Promise<Employee> {
+    return this.employeesService.updateEmployeeSalary(id, dailySalary);
   }
 
   @ResolveField(() => String, { name: 'displayName' })

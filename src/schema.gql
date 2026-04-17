@@ -16,6 +16,9 @@ type Employee {
   isActive: Boolean!
   createdAt: String!
   updatedAt: String!
+
+  """Salario diario del empleado"""
+  dailySalary: Float
   displayName: String!
 }
 
@@ -438,6 +441,173 @@ type Template {
   lastUpdate: DateTime!
 }
 
+type Quote {
+  id: ID!
+  sequence: Int!
+  quoteNumber: String!
+  version: Int!
+  status: QuoteStatus!
+  company: Company
+  serviceOfferedBy: JSON!
+  serviceRequestedBy: JSON!
+  services: JSON!
+  log: JSON!
+  qualitySystemCode: String
+  actorName: String
+  internalNotes: String
+  issuedAt: String
+  createdAt: String!
+  updatedAt: String!
+}
+
+enum QuoteStatus {
+  DRAFT
+  SENT
+  APPROVED
+  REJECTED
+}
+
+type QuoteSettings {
+  id: ID!
+  defaultActorName: String
+  defaultQualitySystemCode: String
+  logoDataUrl: String
+  quotePrefix: String!
+  accentColor: String!
+  serviceDefaults: JSON
+  serviceOfferedBy: JSON
+  updatedAt: String!
+}
+
+type PurchaseOrder {
+  id: ID!
+  internalNumber: String!
+  customerPoNumber: String!
+  status: POStatus!
+  receivedAt: String
+  companyId: String
+  contactId: String
+  clientAmount: Float!
+  currency: String
+  ownerName: String
+  internalNotes: String
+  pdfUrl: String
+  linkedQuotes: JSON!
+  linkedInvoices: JSON!
+  log: JSON!
+  createdAt: String!
+  updatedAt: String!
+}
+
+enum POStatus {
+  DRAFT
+  SENT
+  ACCEPTED
+  REJECTED
+  CANCELLED
+  COMPLETED
+}
+
+type Invoice {
+  id: ID!
+  internalFolio: String!
+  satFolio: String
+  status: InvoiceStatus!
+  companyId: String!
+  contactId: String
+  paymentConditions: String
+  ownerName: String
+  internalNotes: String
+  currency: String!
+  issueDate: String
+  dueDate: String
+  subtotal: Float!
+  taxAmount: Float!
+  totalAmount: Float!
+  concepts: JSON!
+  cfdiUse: String
+  paymentMethod: String
+  paymentForm: String
+  xmlUrl: String
+  pdfUrl: String
+  linkedPurchaseOrders: JSON!
+  log: JSON!
+  createdAt: String!
+  updatedAt: String!
+}
+
+enum InvoiceStatus {
+  DRAFT
+  ISSUED
+  PAID
+  PARTIAL
+  CANCELLED
+}
+
+type Contract {
+  id: ID!
+  employeeId: String!
+  type: ContractType!
+  status: ContractStatus!
+  startDate: String!
+  endDate: String
+  jobPosition: String!
+  department: String!
+  salary: Float!
+  workDays: String!
+  paymentFrequency: String!
+  seniorityDate: String!
+  workSchedule: String!
+  notes: String
+  personalDataSnapshot: JSON!
+  clauses: JSON!
+  createdAt: String!
+  updatedAt: String!
+}
+
+enum ContractType {
+  DETERMINADO
+  INDETERMINADO
+  PERIODO_PRUEBA
+  CAPACITACION_INICIAL
+  HONORARIOS
+}
+
+enum ContractStatus {
+  VIGENTE
+  TERMINADO
+  CANCELADO
+}
+
+type Settlement {
+  id: ID!
+  employeeId: String!
+  hireDate: String!
+  terminationDate: String!
+  reason: TerminationReason!
+  weeklyHours: Int!
+  status: SettlementStatus!
+  totalAmount: Float
+  breakdown: JSON
+  createdAt: String!
+  updatedAt: String!
+}
+
+enum TerminationReason {
+  RENUNCIA_VOLUNTARIA
+  DESPIDO_JUSTIFICADO
+  DESPIDO_INJUSTIFICADO
+  TERMINO_DE_CONTRATO
+  MUTUO_ACUERDO
+  FALLECIMIENTO
+}
+
+enum SettlementStatus {
+  DRAFT
+  APPROVED
+  PAID
+}
+
 type Query {
   revalite: AuthResponse!
   users(
@@ -633,6 +803,17 @@ type Query {
     limit: Int = 10
   ): [Template!]!
   templateByCode(code: String!): Template!
+  quotes: [Quote!]!
+  quote(id: ID!): Quote!
+  quoteSettings: QuoteSettings!
+  purchaseOrders: [PurchaseOrder!]!
+  purchaseOrder(id: ID!): PurchaseOrder!
+  invoices: [Invoice!]!
+  invoice(id: ID!): Invoice!
+  contracts: [Contract!]!
+  contract(id: ID!): Contract!
+  settlements: [Settlement!]!
+  settlement(id: ID!): Settlement!
 }
 
 type Mutation {
@@ -643,6 +824,7 @@ type Mutation {
   createEmployee(createEmployeeInput: CreateEmployeeInput!): Employee!
   updateEmployee(updateEmployeeInput: UpdateEmployeeInput!): Employee!
   removeEmployee(id: ID!, isActive: Boolean!): Employee!
+  updateEmployeeSalary(id: ID!, dailySalary: Float!): Employee!
   createCompany(createCompanyInput: CreateCompanyInput!): Company!
   updateCompany(updateCompanyInput: UpdateCompanyInput!): Company!
   removeCompany(id: ID!, isActive: Boolean! = false): Company!
@@ -709,6 +891,22 @@ type Mutation {
   createTemplate(createTemplateInput: CreateTemplateInput!): Template!
   updateTemplate(updateTemplateInput: UpdateTemplateInput!): Template!
   removeTemplate(id: ID!): Template!
+  createQuote(createQuoteInput: CreateQuoteInput!): Quote!
+  updateQuote(updateQuoteInput: UpdateQuoteInput!): Quote!
+  removeQuote(id: ID!): Boolean!
+  updateQuoteSettings(updateQuoteSettingsInput: UpdateQuoteSettingsInput!): QuoteSettings!
+  createPurchaseOrder(createPurchaseOrderInput: CreatePurchaseOrderInput!): PurchaseOrder!
+  updatePurchaseOrder(updatePurchaseOrderInput: UpdatePurchaseOrderInput!): PurchaseOrder!
+  removePurchaseOrder(id: ID!): Boolean!
+  createInvoice(createInvoiceInput: CreateInvoiceInput!): Invoice!
+  updateInvoice(updateInvoiceInput: UpdateInvoiceInput!): Invoice!
+  removeInvoice(id: ID!): Boolean!
+  createContract(createContractInput: CreateContractInput!): Contract!
+  updateContract(updateContractInput: UpdateContractInput!): Contract!
+  removeContract(id: ID!): Boolean!
+  createSettlement(createSettlementInput: CreateSettlementInput!): Settlement!
+  updateSettlement(updateSettlementInput: UpdateSettlementInput!): Settlement!
+  removeSettlement(id: ID!): Boolean!
 }
 
 input LoginInput {
@@ -1146,5 +1344,221 @@ input UpdateTemplateInput {
   title: String
   subject: String
   content: String
+  id: ID!
+}
+
+input CreateQuoteInput {
+  sequence: Int!
+  quoteNumber: String!
+  status: QuoteStatus
+  companyId: String
+  serviceOfferedBy: PartyInfoInput!
+  serviceRequestedBy: PartyInfoInput!
+  services: [QuoteServiceInput!]!
+  log: JSON
+  qualitySystemCode: String
+  actorName: String
+  internalNotes: String
+  issuedAt: String
+}
+
+input PartyInfoInput {
+  companyName: String!
+  contactName: String
+  email: String
+  phone: String
+  address: String
+  notes: String
+}
+
+input QuoteServiceInput {
+  type: String!
+  details: JSON!
+}
+
+input UpdateQuoteInput {
+  sequence: Int
+  quoteNumber: String
+  status: QuoteStatus
+  companyId: String
+  serviceOfferedBy: PartyInfoInput
+  serviceRequestedBy: PartyInfoInput
+  services: [QuoteServiceInput!]
+  log: JSON
+  qualitySystemCode: String
+  actorName: String
+  internalNotes: String
+  issuedAt: String
+  id: ID!
+  version: Int
+}
+
+input UpdateQuoteSettingsInput {
+  id: ID!
+  defaultActorName: String
+  defaultQualitySystemCode: String
+  logoDataUrl: String
+  quotePrefix: String
+  accentColor: String
+  serviceDefaults: JSON
+  serviceOfferedBy: JSON
+}
+
+input CreatePurchaseOrderInput {
+  internalNumber: String!
+  customerPoNumber: String!
+  status: POStatus
+  receivedAt: String
+  companyId: String!
+  contactId: String
+  clientAmount: Float!
+  currency: String!
+  ownerName: String
+  internalNotes: String
+  pdfUrl: String
+  linkedQuotes: [LinkedQuoteInput!]!
+  log: JSON
+}
+
+input LinkedQuoteInput {
+  quoteId: String!
+  quoteNumber: String
+  amount: Float!
+}
+
+input UpdatePurchaseOrderInput {
+  internalNumber: String
+  customerPoNumber: String
+  status: POStatus
+  receivedAt: String
+  companyId: String
+  contactId: String
+  clientAmount: Float
+  currency: String
+  ownerName: String
+  internalNotes: String
+  pdfUrl: String
+  linkedQuotes: [LinkedQuoteInput!]
+  log: JSON
+  id: ID!
+}
+
+input CreateInvoiceInput {
+  internalFolio: String!
+  satFolio: String
+  status: InvoiceStatus
+  companyId: String!
+  contactId: String
+  paymentConditions: String
+  ownerName: String
+  internalNotes: String
+  currency: String!
+  issueDate: String
+  dueDate: String
+  subtotal: Float!
+  taxAmount: Float!
+  totalAmount: Float!
+  concepts: [InvoiceConceptInput!]!
+  linkedPurchaseOrders: [LinkedInvoicePoInput!]!
+  log: JSON
+  pdfUrl: String
+  xmlUrl: String
+}
+
+input InvoiceConceptInput {
+  description: String!
+  quantity: Float!
+  unitPrice: Float!
+  applyTax: Boolean!
+  taxRate: Float
+  subtotal: Float!
+}
+
+input LinkedInvoicePoInput {
+  poId: String!
+  poNumber: String!
+  amount: Float!
+}
+
+input UpdateInvoiceInput {
+  internalFolio: String
+  satFolio: String
+  status: InvoiceStatus
+  companyId: String
+  contactId: String
+  paymentConditions: String
+  ownerName: String
+  internalNotes: String
+  currency: String
+  issueDate: String
+  dueDate: String
+  subtotal: Float
+  taxAmount: Float
+  totalAmount: Float
+  concepts: [InvoiceConceptInput!]
+  linkedPurchaseOrders: [LinkedInvoicePoInput!]
+  log: JSON
+  pdfUrl: String
+  xmlUrl: String
+  id: ID!
+}
+
+input CreateContractInput {
+  employeeId: String!
+  type: ContractType!
+  status: ContractStatus
+  startDate: String!
+  endDate: String
+  jobPosition: String!
+  department: String!
+  salary: Float!
+  workDays: String!
+  paymentFrequency: String!
+  seniorityDate: String!
+  workSchedule: String!
+  notes: String
+  personalDataSnapshot: JSON!
+  clauses: [String!]!
+}
+
+input UpdateContractInput {
+  employeeId: String
+  type: ContractType
+  status: ContractStatus
+  startDate: String
+  endDate: String
+  jobPosition: String
+  department: String
+  salary: Float
+  workDays: String
+  paymentFrequency: String
+  seniorityDate: String
+  workSchedule: String
+  notes: String
+  personalDataSnapshot: JSON
+  clauses: [String!]
+  id: ID!
+}
+
+input CreateSettlementInput {
+  employeeId: String!
+  hireDate: String!
+  terminationDate: String!
+  reason: TerminationReason!
+  weeklyHours: Int!
+  status: SettlementStatus
+  totalAmount: Float
+  breakdown: JSON
+}
+
+input UpdateSettlementInput {
+  employeeId: String
+  hireDate: String
+  terminationDate: String
+  reason: TerminationReason
+  weeklyHours: Int
+  status: SettlementStatus
+  totalAmount: Float
+  breakdown: JSON
   id: ID!
 }

@@ -1,4 +1,4 @@
-import { ObjectType, Field, ID } from '@nestjs/graphql';
+import { ObjectType, Field, ID, Float } from '@nestjs/graphql';
 import {
   Entity,
   Column,
@@ -65,4 +65,11 @@ export class Employee {
   @Field(() => String)
   @UpdateDateColumn({ type: 'timestamptz' })
   updatedAt: Date;
+
+  @Field(() => Float, {
+    nullable: true,
+    description: 'Salario diario del empleado',
+  })
+  @Column('decimal', { precision: 10, scale: 2, nullable: true })
+  dailySalary?: number;
 }

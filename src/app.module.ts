@@ -47,6 +47,11 @@ import { TemplatesModule } from './common/templates/templates.module';
 
 // Utils
 import { formatError } from './common/utils';
+import { QuotesModule } from './operations/quotes/quotes.module';
+import { PurchaseOrdersModule } from './operations/purchase-orders/purchase-orders.module';
+import { InvoicesModule } from './operations/invoices/invoices.module';
+import { ContractsModule } from './hr/contracts/contracts.module';
+import { SettlementsModule } from './hr/settlements/settlements.module';
 
 @Module({
   imports: [
@@ -124,6 +129,11 @@ import { formatError } from './common/utils';
     // Common Modules
     NotificationsModule,
     TemplatesModule,
+    QuotesModule,
+    PurchaseOrdersModule,
+    InvoicesModule,
+    ContractsModule,
+    SettlementsModule,
   ],
   controllers: [],
   providers: [],

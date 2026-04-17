@@ -133,6 +133,21 @@ export class EmployeesService {
     }
   }
 
+  async updateEmployeeSalary(
+    id: string,
+    dailySalary: number,
+  ): Promise<Employee> {
+    const employee = await this.findOne(id);
+
+    employee.dailySalary = dailySalary;
+
+    try {
+      return await this.employeesRepository.save(employee);
+    } catch (error) {
+      this.handleDBExceptions(error);
+    }
+  }
+
   private handleDBExceptions(error: any): never {
     if (error.code === '23505') {
       const field = error.detail?.match(/\((.*?)\)/)?.[1] || 'proporcionado';
