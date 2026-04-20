@@ -5,10 +5,30 @@ import {
   PrimaryGeneratedColumn,
   CreateDateColumn,
   UpdateDateColumn,
+  ManyToOne,
+  JoinColumn,
 } from 'typeorm';
 import GraphQLJSON from 'graphql-type-json';
 
 import { InvoiceStatus } from '../enums/invoice.enums';
+import { Company } from '../../../crm/companies/entities/company.entity';
+
+@ObjectType()
+export class LinkedInvoicePoType {
+  @Field(() => String) poId: string;
+  @Field(() => String) poNumber: string;
+  @Field(() => Float) amount: number;
+}
+
+@ObjectType()
+export class InvoiceConceptType {
+  @Field(() => String) description: string;
+  @Field(() => Float) quantity: number;
+  @Field(() => Float) unitPrice: number;
+  @Field(() => Boolean) applyTax: boolean;
+  @Field(() => Float, { nullable: true }) taxRate?: number;
+  @Field(() => Float) subtotal: number;
+}
 
 @ObjectType()
 @Entity({ name: 'invoices' })
@@ -36,6 +56,11 @@ export class Invoice {
   @Field(() => String)
   @Column('uuid', { name: 'company_id' })
   companyId: string;
+
+  @Field(() => Company, { nullable: true })
+  @ManyToOne(() => Company, { eager: true, nullable: true })
+  @JoinColumn({ name: 'company_id' })
+  company?: Company;
 
   @Field(() => String, { nullable: true })
   @Column('uuid', { name: 'contact_id', nullable: true })
@@ -77,7 +102,7 @@ export class Invoice {
   @Column('decimal', { precision: 12, scale: 2, default: 0 })
   totalAmount: number;
 
-  @Field(() => GraphQLJSON)
+  @Field(() => [InvoiceConceptType])
   @Column('jsonb', { default: [] })
   concepts: any[];
 
@@ -101,7 +126,7 @@ export class Invoice {
   @Column('text', { nullable: true })
   pdfUrl?: string;
 
-  @Field(() => GraphQLJSON)
+  @Field(() => [LinkedInvoicePoType])
   @Column('jsonb', { default: [] })
   linkedPurchaseOrders: any[];
 

@@ -44,6 +44,7 @@ export class Quote {
   @Field(() => Company, { nullable: true })
   company?: Company;
 
+  @Field(() => String, { nullable: true })
   @Column('uuid', { name: 'company_id', nullable: true })
   companyId?: string;
 

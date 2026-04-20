@@ -5,10 +5,27 @@ import {
   PrimaryGeneratedColumn,
   CreateDateColumn,
   UpdateDateColumn,
+  ManyToOne,
+  JoinColumn,
 } from 'typeorm';
 import GraphQLJSON from 'graphql-type-json';
 
 import { POStatus } from '../enums/purchase-order.enums';
+import { Company } from '../../../crm/companies/entities/company.entity';
+
+@ObjectType()
+export class LinkedQuoteType {
+  @Field(() => String) quoteId: string;
+  @Field(() => String, { nullable: true }) quoteNumber?: string;
+  @Field(() => Float) amount: number;
+}
+
+@ObjectType()
+export class LinkedInvoiceType {
+  @Field(() => String) invoiceId: string;
+  @Field(() => String, { nullable: true }) invoiceFolio?: string;
+  @Field(() => Float) amount: number;
+}
 
 @ObjectType()
 @Entity({ name: 'purchase_orders' })
@@ -37,9 +54,14 @@ export class PurchaseOrder {
   @Column('timestamptz', { nullable: true })
   receivedAt?: Date;
 
-  @Field(() => String, { nullable: true })
-  @Column('uuid', { name: 'company_id', nullable: true })
-  companyId?: string;
+  @Field(() => String)
+  @Column('uuid', { name: 'company_id' })
+  companyId: string;
+
+  @Field(() => Company, { nullable: true })
+  @ManyToOne(() => Company, { eager: true, nullable: true })
+  @JoinColumn({ name: 'company_id' })
+  company?: Company;
 
   @Field(() => String, { nullable: true })
   @Column('uuid', { name: 'contact_id', nullable: true })
@@ -65,11 +87,11 @@ export class PurchaseOrder {
   @Column('text', { nullable: true })
   pdfUrl?: string;
 
-  @Field(() => GraphQLJSON)
+  @Field(() => [LinkedQuoteType])
   @Column('jsonb', { default: [] })
   linkedQuotes: any[];
 
-  @Field(() => GraphQLJSON)
+  @Field(() => [LinkedInvoiceType])
   @Column('jsonb', { default: [] })
   linkedInvoices: any[];
 
