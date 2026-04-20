@@ -448,6 +448,7 @@ type Quote {
   version: Int!
   status: QuoteStatus!
   company: Company
+  companyId: String
   serviceOfferedBy: JSON!
   serviceRequestedBy: JSON!
   services: JSON!
@@ -479,21 +480,34 @@ type QuoteSettings {
   updatedAt: String!
 }
 
+type LinkedQuoteType {
+  quoteId: String!
+  quoteNumber: String
+  amount: Float!
+}
+
+type LinkedInvoiceType {
+  invoiceId: String!
+  invoiceFolio: String
+  amount: Float!
+}
+
 type PurchaseOrder {
   id: ID!
   internalNumber: String!
   customerPoNumber: String!
   status: POStatus!
   receivedAt: String
-  companyId: String
+  companyId: String!
+  company: Company
   contactId: String
   clientAmount: Float!
   currency: String
   ownerName: String
   internalNotes: String
   pdfUrl: String
-  linkedQuotes: JSON!
-  linkedInvoices: JSON!
+  linkedQuotes: [LinkedQuoteType!]!
+  linkedInvoices: [LinkedInvoiceType!]!
   log: JSON!
   createdAt: String!
   updatedAt: String!
@@ -508,12 +522,28 @@ enum POStatus {
   COMPLETED
 }
 
+type LinkedInvoicePoType {
+  poId: String!
+  poNumber: String!
+  amount: Float!
+}
+
+type InvoiceConceptType {
+  description: String!
+  quantity: Float!
+  unitPrice: Float!
+  applyTax: Boolean!
+  taxRate: Float
+  subtotal: Float!
+}
+
 type Invoice {
   id: ID!
   internalFolio: String!
   satFolio: String
   status: InvoiceStatus!
   companyId: String!
+  company: Company
   contactId: String
   paymentConditions: String
   ownerName: String
@@ -524,13 +554,13 @@ type Invoice {
   subtotal: Float!
   taxAmount: Float!
   totalAmount: Float!
-  concepts: JSON!
+  concepts: [InvoiceConceptType!]!
   cfdiUse: String
   paymentMethod: String
   paymentForm: String
   xmlUrl: String
   pdfUrl: String
-  linkedPurchaseOrders: JSON!
+  linkedPurchaseOrders: [LinkedInvoicePoType!]!
   log: JSON!
   createdAt: String!
   updatedAt: String!
