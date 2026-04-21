@@ -15,6 +15,7 @@ import {
   UpdateQuoteInput,
   UpdateQuoteSettingsInput,
 } from './dto';
+import { PaginationArgs } from '../../common/dto/args/pagination.args';
 
 @Injectable()
 export class QuotesService {
@@ -36,8 +37,11 @@ export class QuotesService {
     }
   }
 
-  async findAllQuotes(): Promise<Quote[]> {
+  async findAllQuotes(paginationArgs: PaginationArgs): Promise<Quote[]> {
+    const { limit, offset } = paginationArgs;
     return this.quotesRepository.find({
+      take: limit,
+      skip: offset,
       order: {
         sequence: 'DESC',
       },
@@ -82,10 +86,15 @@ export class QuotesService {
     }
   }
 
-  async removeQuote(id: string): Promise<boolean> {
+  async changeStatus(id: string, isActive: boolean): Promise<Quote> {
     const quote = await this.findQuoteById(id);
-    await this.quotesRepository.remove(quote);
-    return true;
+    quote.isActive = isActive;
+
+    try {
+      return await this.quotesRepository.save(quote);
+    } catch (error) {
+      this.handleDBExceptions(error);
+    }
   }
 
   async getSettings(): Promise<QuoteSettings> {

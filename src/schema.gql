@@ -459,6 +459,7 @@ type Quote {
   issuedAt: String
   createdAt: String!
   updatedAt: String!
+  isActive: Boolean!
 }
 
 enum QuoteStatus {
@@ -484,12 +485,14 @@ type LinkedQuoteType {
   quoteId: String!
   quoteNumber: String
   amount: Float!
+  quote: Quote
 }
 
 type LinkedInvoiceType {
   invoiceId: String!
   invoiceFolio: String
   amount: Float!
+  invoice: Invoice
 }
 
 type PurchaseOrder {
@@ -511,6 +514,8 @@ type PurchaseOrder {
   log: JSON!
   createdAt: String!
   updatedAt: String!
+  isActive: Boolean!
+  contact: CompanyContact
 }
 
 enum POStatus {
@@ -526,6 +531,7 @@ type LinkedInvoicePoType {
   poId: String!
   poNumber: String!
   amount: Float!
+  purchaseOrder: PurchaseOrder
 }
 
 type InvoiceConceptType {
@@ -564,6 +570,8 @@ type Invoice {
   log: JSON!
   createdAt: String!
   updatedAt: String!
+  isActive: Boolean!
+  contact: CompanyContact
 }
 
 enum InvoiceStatus {
@@ -593,6 +601,8 @@ type Contract {
   clauses: JSON!
   createdAt: String!
   updatedAt: String!
+  isActive: Boolean!
+  employee: Employee
 }
 
 enum ContractType {
@@ -621,6 +631,8 @@ type Settlement {
   breakdown: JSON
   createdAt: String!
   updatedAt: String!
+  isActive: Boolean!
+  employee: Employee
 }
 
 enum TerminationReason {
@@ -833,16 +845,46 @@ type Query {
     limit: Int = 10
   ): [Template!]!
   templateByCode(code: String!): Template!
-  quotes: [Quote!]!
+  quotes(
+    """Número de registros a omitir"""
+    offset: Int = 0
+
+    """Límite de registros por página"""
+    limit: Int = 10
+  ): [Quote!]!
   quote(id: ID!): Quote!
   quoteSettings: QuoteSettings!
-  purchaseOrders: [PurchaseOrder!]!
+  purchaseOrders(
+    """Número de registros a omitir"""
+    offset: Int = 0
+
+    """Límite de registros por página"""
+    limit: Int = 10
+  ): [PurchaseOrder!]!
   purchaseOrder(id: ID!): PurchaseOrder!
-  invoices: [Invoice!]!
+  invoices(
+    """Número de registros a omitir"""
+    offset: Int = 0
+
+    """Límite de registros por página"""
+    limit: Int = 10
+  ): [Invoice!]!
   invoice(id: ID!): Invoice!
-  contracts: [Contract!]!
+  contracts(
+    """Número de registros a omitir"""
+    offset: Int = 0
+
+    """Límite de registros por página"""
+    limit: Int = 10
+  ): [Contract!]!
   contract(id: ID!): Contract!
-  settlements: [Settlement!]!
+  settlements(
+    """Número de registros a omitir"""
+    offset: Int = 0
+
+    """Límite de registros por página"""
+    limit: Int = 10
+  ): [Settlement!]!
   settlement(id: ID!): Settlement!
 }
 
@@ -923,20 +965,20 @@ type Mutation {
   removeTemplate(id: ID!): Template!
   createQuote(createQuoteInput: CreateQuoteInput!): Quote!
   updateQuote(updateQuoteInput: UpdateQuoteInput!): Quote!
-  removeQuote(id: ID!): Boolean!
+  changeQuoteStatus(id: ID!, isActive: Boolean!): Quote!
   updateQuoteSettings(updateQuoteSettingsInput: UpdateQuoteSettingsInput!): QuoteSettings!
   createPurchaseOrder(createPurchaseOrderInput: CreatePurchaseOrderInput!): PurchaseOrder!
   updatePurchaseOrder(updatePurchaseOrderInput: UpdatePurchaseOrderInput!): PurchaseOrder!
-  removePurchaseOrder(id: ID!): Boolean!
+  changePurchaseOrderStatus(id: ID!, isActive: Boolean!): PurchaseOrder!
   createInvoice(createInvoiceInput: CreateInvoiceInput!): Invoice!
   updateInvoice(updateInvoiceInput: UpdateInvoiceInput!): Invoice!
-  removeInvoice(id: ID!): Boolean!
+  changeInvoiceStatus(id: ID!, isActive: Boolean!): Invoice!
   createContract(createContractInput: CreateContractInput!): Contract!
   updateContract(updateContractInput: UpdateContractInput!): Contract!
-  removeContract(id: ID!): Boolean!
+  changeContractStatus(id: ID!, isActive: Boolean!): Contract!
   createSettlement(createSettlementInput: CreateSettlementInput!): Settlement!
   updateSettlement(updateSettlementInput: UpdateSettlementInput!): Settlement!
-  removeSettlement(id: ID!): Boolean!
+  changeSettlementStatus(id: ID!, isActive: Boolean!): Settlement!
 }
 
 input LoginInput {

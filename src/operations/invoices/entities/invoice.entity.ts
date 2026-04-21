@@ -141,4 +141,8 @@ export class Invoice {
   @Field(() => String)
   @UpdateDateColumn({ type: 'timestamptz' })
   updatedAt: Date;
+
+  @Field(() => Boolean)
+  @Column('boolean', { default: true })
+  isActive: boolean;
 }

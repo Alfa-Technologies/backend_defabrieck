@@ -4,6 +4,9 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { CompanyContactsModule } from '../../crm/company-contacts/company-contacts.module';
 import { QuotesModule } from '../quotes/quotes.module';
 import { InvoicesModule } from '../invoices/invoices.module';
+import { CompanyContact } from '../../crm/company-contacts/entities/company-contact.entity';
+import { Quote } from '../quotes/entities/quote.entity';
+import { Invoice } from '../invoices/entities/invoice.entity';
 
 import { PurchaseOrdersService } from './purchase-orders.service';
 import {
@@ -12,10 +15,11 @@ import {
   LinkedInvoiceResolver,
 } from './purchase-orders.resolver';
 import { PurchaseOrder } from './entities/purchase-order.entity';
+import { PurchaseOrdersLoader } from './purchase-orders.loader';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([PurchaseOrder]),
+    TypeOrmModule.forFeature([PurchaseOrder, CompanyContact, Quote, Invoice]),
     CompanyContactsModule,
     QuotesModule,
     forwardRef(() => InvoicesModule),
@@ -23,9 +27,10 @@ import { PurchaseOrder } from './entities/purchase-order.entity';
   providers: [
     PurchaseOrdersResolver,
     PurchaseOrdersService,
+    PurchaseOrdersLoader,
     LinkedQuoteResolver,
     LinkedInvoiceResolver,
   ],
-  exports: [PurchaseOrdersService],
+  exports: [PurchaseOrdersService, PurchaseOrdersLoader],
 })
 export class PurchaseOrdersModule {}

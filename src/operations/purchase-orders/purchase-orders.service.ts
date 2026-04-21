@@ -9,6 +9,7 @@ import { Repository } from 'typeorm';
 
 import { PurchaseOrder } from './entities/purchase-order.entity';
 import { CreatePurchaseOrderInput, UpdatePurchaseOrderInput } from './dto';
+import { PaginationArgs } from '../../common/dto/args/pagination.args';
 
 @Injectable()
 export class PurchaseOrdersService {
@@ -30,8 +31,11 @@ export class PurchaseOrdersService {
     }
   }
 
-  async findAll(): Promise<PurchaseOrder[]> {
+  async findAll(paginationArgs: PaginationArgs): Promise<PurchaseOrder[]> {
+    const { limit, offset } = paginationArgs;
     return await this.poRepository.find({
+      take: limit,
+      skip: offset,
       order: { createdAt: 'DESC' },
     });
   }
@@ -63,10 +67,15 @@ export class PurchaseOrdersService {
     }
   }
 
-  async remove(id: string): Promise<boolean> {
+  async changeStatus(id: string, isActive: boolean): Promise<PurchaseOrder> {
     const po = await this.findOne(id);
-    await this.poRepository.remove(po);
-    return true;
+    po.isActive = isActive;
+
+    try {
+      return await this.poRepository.save(po);
+    } catch (error) {
+      this.handleDBExceptions(error);
+    }
   }
 
   private handleDBExceptions(error: any): never {

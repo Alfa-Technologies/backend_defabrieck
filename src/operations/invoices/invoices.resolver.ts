@@ -7,26 +7,28 @@ import {
   ResolveField,
   Parent,
 } from '@nestjs/graphql';
-import { ParseUUIDPipe, Inject, forwardRef } from '@nestjs/common';
+import { ParseUUIDPipe, UseGuards } from '@nestjs/common';
+import { JwtAuthGuard } from '../../iam/auth/guards/jwt-auth.guard';
+import { PaginationArgs } from '../../common/dto/args/pagination.args';
 
 import { InvoicesService } from './invoices.service';
 import { Invoice, LinkedInvoicePoType } from './entities/invoice.entity';
 import { CreateInvoiceInput, UpdateInvoiceInput } from './dto';
 
 import { CompanyContact } from '../../crm/company-contacts/entities/company-contact.entity';
-import { CompanyContactsService } from '../../crm/company-contacts/company-contacts.service';
+import { InvoicesLoader } from './invoices.loader';
 
 import { PurchaseOrder } from '../purchase-orders/entities/purchase-order.entity';
-import { PurchaseOrdersService } from '../purchase-orders/purchase-orders.service';
 
 @Resolver(() => Invoice)
 export class InvoicesResolver {
   constructor(
     private readonly invoicesService: InvoicesService,
-    private readonly contactsService: CompanyContactsService,
+    private readonly invoicesLoader: InvoicesLoader,
   ) {}
 
   @Mutation(() => Invoice, { name: 'createInvoice' })
+  @UseGuards(JwtAuthGuard)
   createInvoice(
     @Args('createInvoiceInput') createInvoiceInput: CreateInvoiceInput,
   ): Promise<Invoice> {
@@ -34,8 +36,8 @@ export class InvoicesResolver {
   }
 
   @Query(() => [Invoice], { name: 'invoices' })
-  findAll(): Promise<Invoice[]> {
-    return this.invoicesService.findAll();
+  findAll(@Args() paginationArgs: PaginationArgs): Promise<Invoice[]> {
+    return this.invoicesService.findAll(paginationArgs);
   }
 
   @Query(() => Invoice, { name: 'invoice' })
@@ -46,38 +48,38 @@ export class InvoicesResolver {
   }
 
   @Mutation(() => Invoice, { name: 'updateInvoice' })
+  @UseGuards(JwtAuthGuard)
   updateInvoice(
     @Args('updateInvoiceInput') updateInvoiceInput: UpdateInvoiceInput,
   ): Promise<Invoice> {
     return this.invoicesService.update(updateInvoiceInput);
   }
 
-  @Mutation(() => Boolean, { name: 'removeInvoice' })
-  removeInvoice(
+  @Mutation(() => Invoice, { name: 'changeInvoiceStatus' })
+  @UseGuards(JwtAuthGuard)
+  changeInvoiceStatus(
     @Args('id', { type: () => ID }, ParseUUIDPipe) id: string,
-  ): Promise<boolean> {
-    return this.invoicesService.remove(id);
+    @Args('isActive', { type: () => Boolean }) isActive: boolean,
+  ): Promise<Invoice> {
+    return this.invoicesService.changeStatus(id, isActive);
   }
 
   @ResolveField(() => CompanyContact, { nullable: true })
   async contact(@Parent() invoice: Invoice): Promise<CompanyContact | null> {
     if (!invoice.contactId) return null;
-    return this.contactsService.findOne(invoice.contactId);
+    return this.invoicesLoader.batchContacts.load(invoice.contactId);
   }
 }
 
 @Resolver(() => LinkedInvoicePoType)
 export class LinkedInvoicePoResolver {
-  constructor(
-    @Inject(forwardRef(() => PurchaseOrdersService))
-    private readonly poService: PurchaseOrdersService,
-  ) {}
+  constructor(private readonly invoicesLoader: InvoicesLoader) {}
 
   @ResolveField(() => PurchaseOrder, { nullable: true })
   async purchaseOrder(
     @Parent() parent: LinkedInvoicePoType,
   ): Promise<PurchaseOrder | null> {
     if (!parent.poId) return null;
-    return this.poService.findOne(parent.poId);
+    return this.invoicesLoader.batchPurchaseOrders.load(parent.poId);
   }
 }

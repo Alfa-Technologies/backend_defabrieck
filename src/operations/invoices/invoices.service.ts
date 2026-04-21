@@ -9,6 +9,7 @@ import { Repository } from 'typeorm';
 
 import { Invoice } from './entities/invoice.entity';
 import { CreateInvoiceInput, UpdateInvoiceInput } from './dto';
+import { PaginationArgs } from '../../common/dto/args/pagination.args';
 
 @Injectable()
 export class InvoicesService {
@@ -28,8 +29,11 @@ export class InvoicesService {
     }
   }
 
-  async findAll(): Promise<Invoice[]> {
+  async findAll(paginationArgs: PaginationArgs): Promise<Invoice[]> {
+    const { limit, offset } = paginationArgs;
     return await this.invoiceRepository.find({
+      take: limit,
+      skip: offset,
       order: { createdAt: 'DESC' },
     });
   }
@@ -56,10 +60,15 @@ export class InvoicesService {
     }
   }
 
-  async remove(id: string): Promise<boolean> {
+  async changeStatus(id: string, isActive: boolean): Promise<Invoice> {
     const invoice = await this.findOne(id);
-    await this.invoiceRepository.remove(invoice);
-    return true;
+    invoice.isActive = isActive;
+
+    try {
+      return await this.invoiceRepository.save(invoice);
+    } catch (error) {
+      this.handleDBExceptions(error);
+    }
   }
 
   private handleDBExceptions(error: any): never {

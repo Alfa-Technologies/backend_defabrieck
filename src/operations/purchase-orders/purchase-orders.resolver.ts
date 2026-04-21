@@ -7,7 +7,9 @@ import {
   ResolveField,
   Parent,
 } from '@nestjs/graphql';
-import { ParseUUIDPipe, Inject, forwardRef } from '@nestjs/common';
+import { ParseUUIDPipe, UseGuards } from '@nestjs/common';
+import { JwtAuthGuard } from '../../iam/auth/guards/jwt-auth.guard';
+import { PaginationArgs } from '../../common/dto/args/pagination.args';
 
 import { PurchaseOrdersService } from './purchase-orders.service';
 import {
@@ -18,21 +20,20 @@ import {
 import { CreatePurchaseOrderInput, UpdatePurchaseOrderInput } from './dto';
 
 import { CompanyContact } from '../../crm/company-contacts/entities/company-contact.entity';
-import { CompanyContactsService } from '../../crm/company-contacts/company-contacts.service';
+import { PurchaseOrdersLoader } from './purchase-orders.loader';
 
 import { Quote } from '../quotes/entities/quote.entity';
-import { QuotesService } from '../quotes/quotes.service';
 import { Invoice } from '../invoices/entities/invoice.entity';
-import { InvoicesService } from '../invoices/invoices.service';
 
 @Resolver(() => PurchaseOrder)
 export class PurchaseOrdersResolver {
   constructor(
     private readonly poService: PurchaseOrdersService,
-    private readonly contactsService: CompanyContactsService,
+    private readonly poLoader: PurchaseOrdersLoader,
   ) {}
 
   @Mutation(() => PurchaseOrder, { name: 'createPurchaseOrder' })
+  @UseGuards(JwtAuthGuard)
   createPurchaseOrder(
     @Args('createPurchaseOrderInput') createPoInput: CreatePurchaseOrderInput,
   ): Promise<PurchaseOrder> {
@@ -40,8 +41,8 @@ export class PurchaseOrdersResolver {
   }
 
   @Query(() => [PurchaseOrder], { name: 'purchaseOrders' })
-  findAll(): Promise<PurchaseOrder[]> {
-    return this.poService.findAll();
+  findAll(@Args() paginationArgs: PaginationArgs): Promise<PurchaseOrder[]> {
+    return this.poService.findAll(paginationArgs);
   }
 
   @Query(() => PurchaseOrder, { name: 'purchaseOrder' })
@@ -52,47 +53,47 @@ export class PurchaseOrdersResolver {
   }
 
   @Mutation(() => PurchaseOrder, { name: 'updatePurchaseOrder' })
+  @UseGuards(JwtAuthGuard)
   updatePurchaseOrder(
     @Args('updatePurchaseOrderInput') updatePoInput: UpdatePurchaseOrderInput,
   ): Promise<PurchaseOrder> {
     return this.poService.update(updatePoInput.id, updatePoInput);
   }
 
-  @Mutation(() => Boolean, { name: 'removePurchaseOrder' })
-  removePurchaseOrder(
+  @Mutation(() => PurchaseOrder, { name: 'changePurchaseOrderStatus' })
+  @UseGuards(JwtAuthGuard)
+  changePurchaseOrderStatus(
     @Args('id', { type: () => ID }, ParseUUIDPipe) id: string,
-  ): Promise<boolean> {
-    return this.poService.remove(id);
+    @Args('isActive', { type: () => Boolean }) isActive: boolean,
+  ): Promise<PurchaseOrder> {
+    return this.poService.changeStatus(id, isActive);
   }
 
   @ResolveField(() => CompanyContact, { nullable: true })
   async contact(@Parent() po: PurchaseOrder): Promise<CompanyContact | null> {
     if (!po.contactId) return null;
-    return this.contactsService.findOne(po.contactId);
+    return this.poLoader.batchContacts.load(po.contactId);
   }
 }
 
 @Resolver(() => LinkedQuoteType)
 export class LinkedQuoteResolver {
-  constructor(private readonly quotesService: QuotesService) {}
+  constructor(private readonly poLoader: PurchaseOrdersLoader) {}
 
   @ResolveField(() => Quote, { nullable: true })
   async quote(@Parent() parent: LinkedQuoteType): Promise<Quote | null> {
     if (!parent.quoteId) return null;
-    return this.quotesService.findQuoteById(parent.quoteId);
+    return this.poLoader.batchQuotes.load(parent.quoteId);
   }
 }
 
 @Resolver(() => LinkedInvoiceType)
 export class LinkedInvoiceResolver {
-  constructor(
-    @Inject(forwardRef(() => InvoicesService))
-    private readonly invoicesService: InvoicesService,
-  ) {}
+  constructor(private readonly poLoader: PurchaseOrdersLoader) {}
 
   @ResolveField(() => Invoice, { nullable: true })
   async invoice(@Parent() parent: LinkedInvoiceType): Promise<Invoice | null> {
     if (!parent.invoiceId) return null;
-    return this.invoicesService.findOne(parent.invoiceId);
+    return this.poLoader.batchInvoices.load(parent.invoiceId);
   }
 }

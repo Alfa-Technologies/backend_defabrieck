@@ -9,6 +9,7 @@ import { Repository } from 'typeorm';
 
 import { Contract } from './entities/contract.entity';
 import { CreateContractInput, UpdateContractInput } from './dto';
+import { PaginationArgs } from '../../common/dto/args/pagination.args';
 
 @Injectable()
 export class ContractsService {
@@ -28,8 +29,11 @@ export class ContractsService {
     }
   }
 
-  async findAll(): Promise<Contract[]> {
+  async findAll(paginationArgs: PaginationArgs): Promise<Contract[]> {
+    const { limit, offset } = paginationArgs;
     return await this.contractRepository.find({
+      take: limit,
+      skip: offset,
       order: { startDate: 'DESC' },
     });
   }
@@ -56,10 +60,15 @@ export class ContractsService {
     }
   }
 
-  async remove(id: string): Promise<boolean> {
+  async changeStatus(id: string, isActive: boolean): Promise<Contract> {
     const contract = await this.findOne(id);
-    await this.contractRepository.remove(contract);
-    return true;
+    contract.isActive = isActive;
+
+    try {
+      return await this.contractRepository.save(contract);
+    } catch (error) {
+      this.handleDBExceptions(error);
+    }
   }
 
   private handleDBExceptions(error: any): never {

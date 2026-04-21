@@ -9,6 +9,7 @@ import { Repository } from 'typeorm';
 
 import { Settlement } from './entities/settlement.entity';
 import { CreateSettlementInput, UpdateSettlementInput } from './dto';
+import { PaginationArgs } from '../../common/dto/args/pagination.args';
 
 @Injectable()
 export class SettlementsService {
@@ -32,8 +33,11 @@ export class SettlementsService {
     }
   }
 
-  async findAll(): Promise<Settlement[]> {
+  async findAll(paginationArgs: PaginationArgs): Promise<Settlement[]> {
+    const { limit, offset } = paginationArgs;
     return await this.settlementRepository.find({
+      take: limit,
+      skip: offset,
       order: { terminationDate: 'DESC' },
     });
   }
@@ -64,10 +68,15 @@ export class SettlementsService {
     }
   }
 
-  async remove(id: string): Promise<boolean> {
+  async changeStatus(id: string, isActive: boolean): Promise<Settlement> {
     const settlement = await this.findOne(id);
-    await this.settlementRepository.remove(settlement);
-    return true;
+    settlement.isActive = isActive;
+
+    try {
+      return await this.settlementRepository.save(settlement);
+    } catch (error) {
+      this.handleDBExceptions(error);
+    }
   }
 
   private handleDBExceptions(error: any): never {
