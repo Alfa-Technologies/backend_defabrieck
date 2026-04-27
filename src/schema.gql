@@ -19,8 +19,34 @@ type Employee {
 
   """Salario diario del empleado"""
   dailySalary: Float
+
+  """CURP del empleado"""
+  curp: String
+
+  """RFC del empleado"""
+  rfc: String
+
+  """Número de Seguro Social (IMSS)"""
+  nss: String
+
+  """Género del empleado"""
+  gender: String
+
+  """Estado civil"""
+  maritalStatus: String
+
+  """Dirección del empleado"""
+  address: String
+
+  """Fecha de nacimiento del empleado"""
+  birthDate: DateTime
   displayName: String!
 }
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
 
 type Plant {
   id: ID!
@@ -84,11 +110,6 @@ type ProjectProcessFlow {
   createdAt: DateTime!
   updatedAt: DateTime!
 }
-
-"""
-A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
-"""
-scalar DateTime
 
 type ProjectLog {
   id: ID!
@@ -1012,6 +1033,27 @@ input CreateEmployeeInput {
   employeeCode: String!
   position: String!
   department: String!
+
+  """CURP del empleado"""
+  curp: String
+
+  """RFC del empleado"""
+  rfc: String
+
+  """Número de Seguro Social (IMSS)"""
+  nss: String
+
+  """Género del empleado"""
+  gender: String
+
+  """Estado civil"""
+  maritalStatus: String
+
+  """Dirección del empleado"""
+  address: String
+
+  """Fecha de nacimiento (formato ISO: YYYY-MM-DD)"""
+  birthDate: String
 }
 
 input UpdateEmployeeInput {
@@ -1023,6 +1065,27 @@ input UpdateEmployeeInput {
   employeeCode: String
   position: String
   department: String
+
+  """CURP del empleado"""
+  curp: String
+
+  """RFC del empleado"""
+  rfc: String
+
+  """Número de Seguro Social (IMSS)"""
+  nss: String
+
+  """Género del empleado"""
+  gender: String
+
+  """Estado civil"""
+  maritalStatus: String
+
+  """Dirección del empleado"""
+  address: String
+
+  """Fecha de nacimiento (formato ISO: YYYY-MM-DD)"""
+  birthDate: String
   id: ID!
 }
 

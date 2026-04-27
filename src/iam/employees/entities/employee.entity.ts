@@ -72,4 +72,41 @@ export class Employee {
   })
   @Column('decimal', { precision: 10, scale: 2, nullable: true })
   dailySalary?: number;
+
+  @Field(() => String, { nullable: true, description: 'CURP del empleado' })
+  @Column('varchar', { length: 18, nullable: true })
+  curp?: string;
+
+  @Field(() => String, { nullable: true, description: 'RFC del empleado' })
+  @Column('varchar', { length: 13, nullable: true })
+  rfc?: string;
+
+  @Field(() => String, {
+    nullable: true,
+    description: 'Número de Seguro Social (IMSS)',
+  })
+  @Column('varchar', { length: 11, nullable: true })
+  nss?: string;
+
+  @Field(() => String, { nullable: true, description: 'Género del empleado' })
+  @Column('text', { nullable: true })
+  gender?: string;
+
+  @Field(() => String, { nullable: true, description: 'Estado civil' })
+  @Column('text', { nullable: true })
+  maritalStatus?: string;
+
+  @Field(() => String, {
+    nullable: true,
+    description: 'Dirección del empleado',
+  })
+  @Column('text', { nullable: true })
+  address?: string;
+
+  @Field(() => Date, {
+    nullable: true,
+    description: 'Fecha de nacimiento del empleado',
+  })
+  @Column('date', { nullable: true })
+  birthDate?: Date;
 }
