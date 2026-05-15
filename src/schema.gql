@@ -2,6 +2,26 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
+type Beneficiary {
+  id: ID!
+
+  """Nombre completo del beneficiario"""
+  fullName: String!
+
+  """Parentesco con el empleado"""
+  relationship: String!
+
+  """Teléfono de contacto del beneficiario"""
+  contactPhone: String
+
+  """Porcentaje asignado al beneficiario (0-100)"""
+  percentage: Float!
+  employee: Employee!
+  employeeId: String!
+  createdAt: String!
+  updatedAt: String!
+}
+
 type Employee {
   id: ID!
   firstName: String!
@@ -40,6 +60,10 @@ type Employee {
 
   """Fecha de nacimiento del empleado"""
   birthDate: DateTime
+
+  """Nacionalidad del empleado"""
+  nationality: String
+  beneficiaries: [Beneficiary!]
   displayName: String!
 }
 
@@ -1054,6 +1078,29 @@ input CreateEmployeeInput {
 
   """Fecha de nacimiento (formato ISO: YYYY-MM-DD)"""
   birthDate: String
+
+  """Nacionalidad del empleado"""
+  nationality: String
+
+  """Salario diario del empleado"""
+  dailySalary: Float
+
+  """Lista de beneficiarios del empleado"""
+  beneficiaries: [CreateBeneficiaryInput!]
+}
+
+input CreateBeneficiaryInput {
+  """Nombre completo del beneficiario"""
+  fullName: String!
+
+  """Parentesco con el empleado"""
+  relationship: String!
+
+  """Teléfono de contacto del beneficiario"""
+  contactPhone: String
+
+  """Porcentaje asignado al beneficiario (0-100)"""
+  percentage: Float!
 }
 
 input UpdateEmployeeInput {
@@ -1086,7 +1133,37 @@ input UpdateEmployeeInput {
 
   """Fecha de nacimiento (formato ISO: YYYY-MM-DD)"""
   birthDate: String
+
+  """Nacionalidad del empleado"""
+  nationality: String
+
+  """Salario diario del empleado"""
+  dailySalary: Float
   id: ID!
+
+  """
+  Lista de beneficiarios a actualizar. Beneficiarios con id se actualizan; sin id se crean. Los no incluidos se conservan.
+  """
+  beneficiaries: [UpdateBeneficiaryInput!]
+}
+
+input UpdateBeneficiaryInput {
+  """Nombre completo del beneficiario"""
+  fullName: String
+
+  """Parentesco con el empleado"""
+  relationship: String
+
+  """Teléfono de contacto del beneficiario"""
+  contactPhone: String
+
+  """Porcentaje asignado al beneficiario (0-100)"""
+  percentage: Float
+
+  """
+  ID del beneficiario existente. Omitir para crear uno nuevo en la actualización.
+  """
+  id: ID
 }
 
 input CreateCompanyInput {

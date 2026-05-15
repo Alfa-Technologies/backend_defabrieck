@@ -7,8 +7,10 @@ import {
   JoinColumn,
   CreateDateColumn,
   UpdateDateColumn,
+  OneToMany,
 } from 'typeorm';
 import { User } from '../../users/entities/user.entity';
+import { Beneficiary } from './beneficiary.entity';
 
 @ObjectType()
 @Entity({ name: 'employees' })
@@ -109,4 +111,17 @@ export class Employee {
   })
   @Column('date', { nullable: true })
   birthDate?: Date;
+
+  @Field(() => String, {
+    nullable: true,
+    description: 'Nacionalidad del empleado',
+  })
+  @Column('text', { nullable: true })
+  nationality?: string;
+
+  @OneToMany(() => Beneficiary, (beneficiary) => beneficiary.employee, {
+    cascade: true,
+  })
+  @Field(() => [Beneficiary], { nullable: true })
+  beneficiaries?: Beneficiary[];
 }

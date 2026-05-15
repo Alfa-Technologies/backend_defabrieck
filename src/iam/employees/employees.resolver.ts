@@ -11,6 +11,7 @@ import {
 import { ParseUUIDPipe } from '@nestjs/common';
 import { EmployeesService } from './employees.service';
 import { Employee } from './entities/employee.entity';
+import { Beneficiary } from './entities/beneficiary.entity';
 import { CreateEmployeeInput, UpdateEmployeeInput } from './dto';
 import { PaginationArgs } from '../../common/dto/args/pagination.args';
 import { User } from '../users/entities/user.entity';
@@ -76,5 +77,10 @@ export class EmployeesResolver {
       return null;
     }
     return this.employeesLoader.batchUsers.load(employee.userId);
+  }
+
+  @ResolveField(() => [Beneficiary], { nullable: 'itemsAndList' })
+  async beneficiaries(@Parent() employee: Employee): Promise<Beneficiary[]> {
+    return this.employeesService.findBeneficiariesByEmployeeId(employee.id);
   }
 }

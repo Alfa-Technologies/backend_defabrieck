@@ -1,15 +1,22 @@
-import { InputType, Field } from '@nestjs/graphql';
+import { InputType, Field, Float } from '@nestjs/graphql';
 import {
+  ArrayMaxSize,
+  IsArray,
   IsDateString,
   IsEmail,
   IsNotEmpty,
+  IsNumber,
   IsOptional,
   IsString,
   IsUUID,
+  Max,
   MaxLength,
+  Min,
   MinLength,
+  ValidateNested,
 } from 'class-validator';
-import { Transform } from 'class-transformer';
+import { Transform, Type } from 'class-transformer';
+import { CreateBeneficiaryInput } from './create-beneficiary.input';
 
 @InputType()
 export class CreateEmployeeInput {
@@ -152,4 +159,44 @@ export class CreateEmployeeInput {
   )
   @IsOptional()
   birthDate?: string;
+
+  @Field(() => String, {
+    nullable: true,
+    description: 'Nacionalidad del empleado',
+  })
+  @Transform(({ value }) => value?.trim())
+  @IsString({ message: 'La nacionalidad debe ser un texto válido.' })
+  @IsOptional()
+  @MaxLength(50, {
+    message: 'La nacionalidad no puede exceder los $constraint1 caracteres.',
+  })
+  nationality?: string;
+
+  @Field(() => Float, {
+    nullable: true,
+    description: 'Salario diario del empleado',
+  })
+  @IsNumber(
+    { maxDecimalPlaces: 2 },
+    { message: 'El salario diario debe ser un número válido.' },
+  )
+  @Min(0, { message: 'El salario diario no puede ser menor a 0.' })
+  @Max(999999.99, {
+    message: 'El salario diario excede el monto máximo permitido.',
+  })
+  @IsOptional()
+  dailySalary?: number;
+
+  @Field(() => [CreateBeneficiaryInput], {
+    nullable: true,
+    description: 'Lista de beneficiarios del empleado',
+  })
+  @IsArray({ message: 'Los beneficiarios deben ser una lista válida.' })
+  @ArrayMaxSize(10, {
+    message: 'No se pueden registrar más de $constraint1 beneficiarios.',
+  })
+  @ValidateNested({ each: true })
+  @Type(() => CreateBeneficiaryInput)
+  @IsOptional()
+  beneficiaries?: CreateBeneficiaryInput[];
 }
