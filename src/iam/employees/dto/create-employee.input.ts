@@ -2,7 +2,6 @@ import { InputType, Field, Float } from '@nestjs/graphql';
 import {
   ArrayMaxSize,
   IsArray,
-  IsDateString,
   IsEmail,
   IsNotEmpty,
   IsNumber,
@@ -17,6 +16,7 @@ import {
 } from 'class-validator';
 import { Transform, Type } from 'class-transformer';
 import { CreateBeneficiaryInput } from './create-beneficiary.input';
+import { DateDDMMYYYYScalar } from '../../../common/scalars/date.scalar';
 
 @InputType()
 export class CreateEmployeeInput {
@@ -147,16 +147,10 @@ export class CreateEmployeeInput {
   })
   address?: string;
 
-  @Field(() => String, {
+  @Field(() => DateDDMMYYYYScalar, {
     nullable: true,
-    description: 'Fecha de nacimiento (formato ISO: YYYY-MM-DD)',
+    description: 'Fecha de nacimiento (formato DD/MM/YYYY)',
   })
-  @IsDateString(
-    {},
-    {
-      message: 'La fecha de nacimiento debe estar en formato ISO (YYYY-MM-DD).',
-    },
-  )
   @IsOptional()
   birthDate?: string;
 

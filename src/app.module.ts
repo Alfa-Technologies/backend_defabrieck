@@ -47,6 +47,7 @@ import { TemplatesModule } from './common/templates/templates.module';
 
 // Utils
 import { formatError } from './common/utils';
+import { DateDDMMYYYYScalar } from './common/scalars/date.scalar';
 import { QuotesModule } from './operations/quotes/quotes.module';
 import { PurchaseOrdersModule } from './operations/purchase-orders/purchase-orders.module';
 import { InvoicesModule } from './operations/invoices/invoices.module';
@@ -76,6 +77,7 @@ import { SettlementsModule } from './hr/settlements/settlements.module';
         formatError,
       }),
     }),
+    DateDDMMYYYYScalar,
 
     TypeOrmModule.forRoot({
       type: 'postgres',

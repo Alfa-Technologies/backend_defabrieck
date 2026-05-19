@@ -11,6 +11,7 @@ import {
 } from 'typeorm';
 import { User } from '../../users/entities/user.entity';
 import { Beneficiary } from './beneficiary.entity';
+import { DateDDMMYYYYScalar } from '../../../common/scalars/date.scalar';
 
 @ObjectType()
 @Entity({ name: 'employees' })
@@ -105,9 +106,9 @@ export class Employee {
   @Column('text', { nullable: true })
   address?: string;
 
-  @Field(() => Date, {
+  @Field(() => DateDDMMYYYYScalar, {
     nullable: true,
-    description: 'Fecha de nacimiento del empleado',
+    description: 'Fecha de nacimiento del empleado (formato DD/MM/YYYY)',
   })
   @Column('date', { nullable: true })
   birthDate?: Date;
