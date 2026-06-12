@@ -34,7 +34,7 @@ export class UsersResolver {
   @Mutation(() => User, { name: 'createUser' })
   async createUser(
     @Args('createUserInput') createUserInput: CreateUserInput,
-    @CurrentUser([ValidRoles.admin]) user: User,
+    @CurrentUser([ValidRoles.superUser, ValidRoles.admin]) user: User,
   ): Promise<User> {
     return this.usersService.create(createUserInput, user);
   }
@@ -42,7 +42,7 @@ export class UsersResolver {
   @Query(() => [User], { name: 'users' })
   findAll(
     @Args() args: GetUsersArgs,
-    @CurrentUser([ValidRoles.admin]) user: User,
+    @CurrentUser([ValidRoles.superUser, ValidRoles.admin]) user: User,
   ): Promise<User[]> {
     return this.usersService.findAll(args.roles, args);
   }
@@ -55,7 +55,7 @@ export class UsersResolver {
   @Mutation(() => User, { name: 'updateUser' })
   async updateUser(
     @Args('updateUserInput') updateUserInput: UpdateUserInput,
-    @CurrentUser([ValidRoles.admin]) user: User,
+    @CurrentUser([ValidRoles.superUser, ValidRoles.admin]) user: User,
   ): Promise<User> {
     return this.usersService.update(updateUserInput.id, updateUserInput, user);
   }
@@ -64,7 +64,7 @@ export class UsersResolver {
   async removeUser(
     @Args('id', { type: () => ID }) id: string,
     @Args('isActive', { type: () => Boolean }) isActive: boolean,
-    @CurrentUser([ValidRoles.admin]) user: User,
+    @CurrentUser([ValidRoles.superUser, ValidRoles.admin]) user: User,
   ): Promise<User> {
     return this.usersService.remove(id, isActive, user);
   }
