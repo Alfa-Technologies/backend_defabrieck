@@ -14,13 +14,13 @@ export class FirebaseService implements OnModuleInit {
 
   private initializeFirebase(): void {
     if (admin.apps.length === 0) {
-      const serviceAccountPath = path.resolve(
-        process.cwd(),
+      const serviceAccount = this.loadServiceAccount(
+        'FIREBASE_SERVICE_ACCOUNT',
         'firebase-service-account.json',
       );
 
       admin.initializeApp({
-        credential: admin.credential.cert(serviceAccountPath),
+        credential: admin.credential.cert(serviceAccount),
       });
 
       this.logger.log('Firebase Admin SDK initialized successfully');
@@ -39,14 +39,14 @@ export class FirebaseService implements OnModuleInit {
     );
 
     if (!existingAdminApp) {
-      const adminServiceAccountPath = path.resolve(
-        process.cwd(),
+      const adminServiceAccount = this.loadServiceAccount(
+        'FIREBASE_ADMIN_SERVICE_ACCOUNT',
         'firebase-as-service-account.json',
       );
 
       admin.initializeApp(
         {
-          credential: admin.credential.cert(adminServiceAccountPath),
+          credential: admin.credential.cert(adminServiceAccount),
         },
         'ADMIN_APP',
       );
@@ -59,6 +59,35 @@ export class FirebaseService implements OnModuleInit {
     }
 
     this.adminFirestore = admin.app('ADMIN_APP').firestore();
+  }
+
+  /**
+   * Carga las credenciales de una cuenta de servicio.
+   * En producción usa la variable de entorno (JSON completo de la cuenta).
+   * En desarrollo, si la variable no existe, recurre al archivo local.
+   */
+  private loadServiceAccount(
+    envVar: string,
+    fallbackFileName: string,
+  ): admin.ServiceAccount {
+    const raw = process.env[envVar];
+
+    if (raw) {
+      try {
+        return JSON.parse(raw) as admin.ServiceAccount;
+      } catch (error) {
+        throw new Error(
+          `La variable de entorno ${envVar} no contiene un JSON válido: ${error}`,
+        );
+      }
+    }
+
+    const fallbackPath = path.resolve(process.cwd(), fallbackFileName);
+    this.logger.warn(
+      `${envVar} no definida; usando archivo local ${fallbackFileName}`,
+    );
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    return require(fallbackPath) as admin.ServiceAccount;
   }
 
   getFirestore(): admin.firestore.Firestore {
