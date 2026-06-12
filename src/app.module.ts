@@ -40,6 +40,7 @@ import { DowntimeLogsModule } from './operations/downtime-logs/downtime-logs.mod
 import { QualityAuditsModule } from './operations/quality-audits/quality-audits.module';
 import { PpeChecksModule } from './operations/ppe-checks/ppe-checks.module';
 import { AttendanceModule } from './operations/attendance/attendance.module';
+import { ProductionDashboardModule } from './operations/production-dashboard/production-dashboard.module';
 
 // Common Modules
 import { NotificationsModule } from './common/notifications/notifications.module';
@@ -53,6 +54,9 @@ import { PurchaseOrdersModule } from './operations/purchase-orders/purchase-orde
 import { InvoicesModule } from './operations/invoices/invoices.module';
 import { ContractsModule } from './hr/contracts/contracts.module';
 import { SettlementsModule } from './hr/settlements/settlements.module';
+
+// Infrastructure Modules
+import { FirebaseModule } from './infrastructure/firebase';
 
 @Module({
   imports: [
@@ -127,6 +131,7 @@ import { SettlementsModule } from './hr/settlements/settlements.module';
     QualityAuditsModule,
     PpeChecksModule,
     AttendanceModule,
+    ProductionDashboardModule,
 
     // Common Modules
     NotificationsModule,
@@ -136,6 +141,9 @@ import { SettlementsModule } from './hr/settlements/settlements.module';
     InvoicesModule,
     ContractsModule,
     SettlementsModule,
+
+    // Infrastructure Modules
+    FirebaseModule,
   ],
   controllers: [],
   providers: [],

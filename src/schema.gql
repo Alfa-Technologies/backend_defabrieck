@@ -197,6 +197,7 @@ type Project {
   unitPrice: Float
   pieceCount: Int
   billingType: String
+  quoteId: String
   isActive: Boolean!
   createdAt: String!
   updatedAt: String!
@@ -284,6 +285,9 @@ enum ValidRoles {
   coordinator
   supervisor
   operator
+  finance
+  rh
+  quality
   user
 }
 
@@ -461,6 +465,42 @@ type AttendanceLog {
   createdBy: User
   createdById: String
   timestamp: DateTime!
+}
+
+type DashboardMetrics {
+  totalInspected: Int!
+  approved: Int!
+  rejected: Int!
+  reworked: Int!
+  totalDefects: Int!
+}
+
+type DefectAnalysis {
+  defectName: String!
+  count: Int!
+}
+
+type AttendanceRecord {
+  date: String!
+  checkIn: String!
+  checkOut: String
+  inspectorId: String!
+  status: String!
+  notes: String
+  hoursWorked: Float
+  inspectorName: String
+}
+
+type DashboardResponse {
+  metrics: DashboardMetrics!
+  topDefects: [DefectAnalysis!]!
+  activeInspectors: Int!
+  totalHoursWorked: Float!
+  quotedPieces: Int
+  remainingPieces: Int
+  quotedRate: Float
+  quoteNumber: String
+  attendanceRecords: [AttendanceRecord!]
 }
 
 type Notification {
@@ -884,6 +924,7 @@ type Query {
   ): [AttendanceLog!]!
   attendanceByEmployee(employeeId: ID!): [AttendanceLog!]!
   activeEmployeesInPlant(plantId: ID!): [AttendanceLog!]!
+  productionDashboard(company: String, plant: String, quoteId: String): DashboardResponse!
   myNotifications(unreadOnly: Boolean! = false): [Notification!]!
   templates(
     """Número de registros a omitir"""
@@ -1347,6 +1388,7 @@ input CreateProjectInput {
   pieceCount: Int
   billingType: String
   status: String
+  quoteId: String
 }
 
 enum ShiftType {
@@ -1380,6 +1422,7 @@ input UpdateProjectInput {
   pieceCount: Int
   billingType: String
   status: String
+  quoteId: String
   id: ID!
   activeRejectionReason: String
 }

@@ -6,23 +6,24 @@ Actúa como un Arquitecto de Software Senior experto en NestJS. Estamos construy
 
 - **Framework:** NestJS
 - **API:** GraphQL (Enfoque Code-first)
-- **Base de Datos:** PostgreSQL a través de TypeORM
-- **Almacenamiento:** Firebase Storage (para firmas digitales, imágenes de defectos y ayudas visuales)
+- **Base de Datos Principal:** PostgreSQL a través de TypeORM
+- **Ecosistema Firebase:** Firebase Storage (firmas digitales, imágenes) y Firestore (consumo de datos operativos vía Firebase Admin SDK).
 - **Automatizaciones (Externo):** n8n alojado en AWS (comunicación futura vía webhooks)
 
 ## 🏢 Reglas Arquitectónicas y de Negocio
 
-1. **Trazabilidad IATF/ISO:** Todo cambio crítico requiere log de auditoría. Usamos TypeORM Subscribers (ej. `afterUpdate`, `afterInsert`) para guardar el historial de quién cambió qué (con `oldData` y `newData`) en tablas de logs separadas.
-2. **Soft Deletes:** Nunca borramos registros físicamente. Usamos un campo `isActive: boolean` manejado en las mutaciones de GraphQL.
-3. **Flujos de Aprobación:** Existen reglas estrictas de negocio. Por ejemplo, un "Proyecto" nace en DRAFT y no puede pasar a ACTIVE ni generar "Turnos" hasta que todas sus "Ayudas Visuales" estén aprobadas y el cliente haya firmado digitalmente.
-4. **Seguridad Híbrida:** Usamos JWT. La autorización primaria es por Roles (RBAC), pero implementaremos filtrado por Atributos (ABAC) basándonos en el `department` y `position` de la entidad Employee.
+1. **Arquitectura de Datos Híbrida:** Postgres es nuestra fuente de verdad transaccional, financiera y de RH. Firestore es estrictamente para consumo (solo lectura y consolidación desde NestJS) de datos operativos generados en tiempo real por las apps satélite en planta.
+2. **Trazabilidad IATF/ISO:** Todo cambio crítico en Postgres requiere log de auditoría. Usamos TypeORM Subscribers para guardar el historial (con `oldData` y `newData`) en tablas de logs separadas.
+3. **Soft Deletes:** Nunca borramos registros físicamente en Postgres. Usamos un campo `isActive: boolean` manejado en las mutaciones de GraphQL.
+4. **Flujos de Aprobación:** Existen reglas estrictas de negocio. Por ejemplo, un "Proyecto" nace en DRAFT y no puede pasar a ACTIVE ni generar "Turnos" hasta que sus "Ayudas Visuales" estén aprobadas y el cliente firme.
+5. **Seguridad Híbrida:** Usamos JWT. La autorización primaria es por Roles (RBAC), pero implementaremos filtrado por Atributos (ABAC) basándonos en el `department` y `position` del Employee.
 
 ## 🚀 Estado Actual y Prioridades
 
 Estamos construyendo el Producto Mínimo Viable (MVP) y vamos a paso acelerado.
 
-- **YA IMPLEMENTADO:** Auditoría estricta con TypeORM Subscribers, flujos de firmas anidados (Proyectos y Ayudas Visuales), y Seguridad en GraphQL (Depth Limit y Error Masking global).
+- **YA IMPLEMENTADO:** Auditoría estricta con TypeORM Subscribers, flujos de firmas anidados, Seguridad en GraphQL, y módulos financieros/RH (Purchase Orders, Invoices, Contracts).
 
-- **SÍ HACER:** Mantener el enfoque Code-first. Para nuevas entidades, incluir siempre el campo `isActive` (Soft Deletes) y conectarlas con los Subscribers de auditoría si son datos críticos. Seguir usando `handleDBExceptions` o el enmascaramiento global para proteger la base de datos.
+- **SÍ HACER:** Mantener el enfoque Code-first. Para nuevas entidades de Postgres, incluir siempre `isActive` y conectarlas a Subscribers si son críticas. Tratar las conexiones a Firestore mediante servicios aislados.
 
 - **NO HACER (Por ahora):** Omitir sugerencias de microservicios, Redis, RabbitMQ, Swagger (usamos GraphQL), o la creación masiva de archivos `.spec.ts`.

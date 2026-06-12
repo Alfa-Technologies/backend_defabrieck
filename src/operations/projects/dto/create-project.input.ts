@@ -164,4 +164,9 @@ export class CreateProjectInput {
   })
   @IsOptional()
   status?: ProjectStatus;
+
+  @Field(() => String, { nullable: true })
+  @IsString({ message: 'El ID de cotización debe ser un texto válido.' })
+  @IsOptional()
+  quoteId?: string;
 }

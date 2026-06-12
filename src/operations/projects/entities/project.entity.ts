@@ -181,6 +181,10 @@ export class Project {
   @Column('text', { nullable: true })
   billingType?: string;
 
+  @Field(() => String, { nullable: true })
+  @Column({ type: 'varchar', nullable: true })
+  quoteId?: string;
+
   @Field(() => Boolean)
   @Column('bool', { default: true })
   isActive: boolean;

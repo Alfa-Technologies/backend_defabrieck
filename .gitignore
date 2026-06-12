@@ -6,6 +6,10 @@
 /postgres-data
 /postgres
 
+# Firebase / Google Cloud service account credentials
+firebase-service-account.json
+firebase-as-service-account.json
+*-service-account.json
 
 # Logs
 logs

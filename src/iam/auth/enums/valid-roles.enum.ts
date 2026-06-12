@@ -13,6 +13,10 @@ export enum ValidRoles {
   supervisor = 'supervisor',
   operator = 'operator',
 
+  finance = 'finance',
+  rh = 'rh',
+  quality = 'quality',
+
   user = 'user',
 }
 

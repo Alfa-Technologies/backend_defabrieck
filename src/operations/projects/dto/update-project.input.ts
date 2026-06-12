@@ -25,4 +25,9 @@ export class UpdateProjectInput extends PartialType(CreateProjectInput) {
   @IsString({ message: 'La razón de rechazo activo debe ser un texto válido.' })
   @IsOptional()
   activeRejectionReason?: string;
+
+  @Field(() => String, { nullable: true })
+  @IsString({ message: 'El ID de cotización debe ser un texto válido.' })
+  @IsOptional()
+  quoteId?: string;
 }
