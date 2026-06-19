@@ -29,28 +29,23 @@ export class DateDDMMYYYYScalar implements CustomScalar<string, string> {
   }
 
   serialize(value: Date | string): string {
-    // Convierte de Date a DD/MM/YYYY
     if (!value) {
       return null as any;
     }
 
-    // Si viene como string de PostgreSQL (YYYY-MM-DD), convertir primero
-    let date: Date;
     if (typeof value === 'string') {
       const parts = value.split('-');
       if (parts.length === 3) {
-        const [year, month, day] = parts.map(Number);
-        date = new Date(year, month - 1, day);
-      } else {
-        return null as any;
+        const [year, month, day] = parts;
+        return `${day.padStart(2, '0')}/${month.padStart(2, '0')}/${year}`;
       }
-    } else {
-      date = value;
+      return null as any;
     }
 
-    const day = String(date.getDate()).padStart(2, '0');
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const year = date.getFullYear();
+    const date = value instanceof Date ? value : new Date(value);
+    const day = String(date.getUTCDate()).padStart(2, '0');
+    const month = String(date.getUTCMonth() + 1).padStart(2, '0');
+    const year = date.getUTCFullYear();
 
     return `${day}/${month}/${year}`;
   }
