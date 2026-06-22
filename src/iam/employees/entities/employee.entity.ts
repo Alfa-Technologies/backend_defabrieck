@@ -120,6 +120,27 @@ export class Employee {
   @Column('text', { nullable: true })
   nationality?: string;
 
+  @Field(() => String, {
+    nullable: true,
+    description: 'Nombre del banco',
+  })
+  @Column('text', { nullable: true })
+  bankName?: string;
+
+  @Field(() => String, {
+    nullable: true,
+    description: 'Número de cuenta bancaria',
+  })
+  @Column('varchar', { length: 20, nullable: true })
+  accountNumber?: string;
+
+  @Field(() => String, {
+    nullable: true,
+    description: 'CLABE interbancaria (18 dígitos)',
+  })
+  @Column('varchar', { length: 18, nullable: true })
+  clabe?: string;
+
   @OneToMany(() => Beneficiary, (beneficiary) => beneficiary.employee, {
     cascade: true,
   })

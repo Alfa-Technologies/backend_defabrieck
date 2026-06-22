@@ -181,6 +181,43 @@ export class CreateEmployeeInput {
   @IsOptional()
   dailySalary?: number;
 
+  @Field(() => String, {
+    nullable: true,
+    description: 'Nombre del banco',
+  })
+  @Transform(({ value }) => value?.trim())
+  @IsString({ message: 'El nombre del banco debe ser un texto válido.' })
+  @IsOptional()
+  @MaxLength(100, {
+    message:
+      'El nombre del banco no puede exceder los $constraint1 caracteres.',
+  })
+  bankName?: string;
+
+  @Field(() => String, {
+    nullable: true,
+    description: 'Número de cuenta bancaria',
+  })
+  @Transform(({ value }) => value?.trim())
+  @IsString({ message: 'El número de cuenta debe ser un texto válido.' })
+  @IsOptional()
+  @MaxLength(20, {
+    message:
+      'El número de cuenta no puede exceder los $constraint1 caracteres.',
+  })
+  accountNumber?: string;
+
+  @Field(() => String, {
+    nullable: true,
+    description: 'CLABE interbancaria (18 dígitos)',
+  })
+  @Transform(({ value }) => value?.trim())
+  @IsString({ message: 'La CLABE debe ser un texto válido.' })
+  @IsOptional()
+  @MinLength(18, { message: 'La CLABE debe tener 18 caracteres.' })
+  @MaxLength(18, { message: 'La CLABE debe tener 18 caracteres.' })
+  clabe?: string;
+
   @Field(() => [CreateBeneficiaryInput], {
     nullable: true,
     description: 'Lista de beneficiarios del empleado',
