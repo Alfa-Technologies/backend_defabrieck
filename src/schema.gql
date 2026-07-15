@@ -63,6 +63,15 @@ type Employee {
 
   """Nacionalidad del empleado"""
   nationality: String
+
+  """Nombre del banco"""
+  bankName: String
+
+  """Número de cuenta bancaria"""
+  accountNumber: String
+
+  """CLABE interbancaria (18 dígitos)"""
+  clabe: String
   beneficiaries: [Beneficiary!]
   displayName: String!
 }
@@ -1129,6 +1138,15 @@ input CreateEmployeeInput {
   """Salario diario del empleado"""
   dailySalary: Float
 
+  """Nombre del banco"""
+  bankName: String
+
+  """Número de cuenta bancaria"""
+  accountNumber: String
+
+  """CLABE interbancaria (18 dígitos)"""
+  clabe: String
+
   """Lista de beneficiarios del empleado"""
   beneficiaries: [CreateBeneficiaryInput!]
 }
@@ -1183,6 +1201,15 @@ input UpdateEmployeeInput {
 
   """Salario diario del empleado"""
   dailySalary: Float
+
+  """Nombre del banco"""
+  bankName: String
+
+  """Número de cuenta bancaria"""
+  accountNumber: String
+
+  """CLABE interbancaria (18 dígitos)"""
+  clabe: String
   id: ID!
 
   """

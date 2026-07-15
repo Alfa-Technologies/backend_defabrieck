@@ -26,8 +26,8 @@ export class User {
   @Column('text', { unique: true })
   email: string;
 
-  @Column('text')
-  password: string;
+  @Column('text', { nullable: true })
+  password?: string;
 
   @Field(() => [ValidRoles])
   @Column('text', { array: true, default: [ValidRoles.user] })
@@ -36,6 +36,10 @@ export class User {
   @Field(() => Boolean)
   @Column('bool', { default: true })
   isActive: boolean;
+
+  @Field(() => String, { nullable: true })
+  @Column('text', { nullable: true, unique: true })
+  firebaseUid?: string;
 
   @Field(() => String, { nullable: true })
   @Column('text', { nullable: true })
