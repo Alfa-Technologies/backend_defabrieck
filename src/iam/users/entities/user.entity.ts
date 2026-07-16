@@ -5,12 +5,9 @@ import {
   PrimaryGeneratedColumn,
   CreateDateColumn,
   UpdateDateColumn,
-  BeforeInsert,
-  BeforeUpdate,
   OneToOne,
   JoinColumn,
 } from 'typeorm';
-import * as bcrypt from 'bcrypt';
 import { ValidRoles } from '../../auth/enums/valid-roles.enum';
 import { Employee } from '../../employees/entities/employee.entity';
 import { CompanyContact } from '../../../crm/company-contacts/entities/company-contact.entity';
@@ -25,9 +22,6 @@ export class User {
   @Field(() => String)
   @Column('text', { unique: true })
   email: string;
-
-  @Column('text', { nullable: true })
-  password?: string;
 
   @Field(() => [ValidRoles])
   @Column('text', { array: true, default: [ValidRoles.user] })
@@ -72,8 +66,4 @@ export class User {
 
   @Column({ name: 'company_contact_id', nullable: true })
   companyContactId?: string;
-
-  async checkPassword(password: string): Promise<boolean> {
-    return bcrypt.compare(password, this.password);
-  }
 }

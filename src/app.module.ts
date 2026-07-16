@@ -2,7 +2,6 @@ import { join } from 'path';
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { ConfigModule } from '@nestjs/config';
 import { Module } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
 
 import { GraphQLModule } from '@nestjs/graphql';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -67,9 +66,7 @@ import { FirebaseModule } from './infrastructure/firebase';
 
     GraphQLModule.forRootAsync({
       driver: ApolloDriver,
-      imports: [AuthModule],
-      inject: [JwtService],
-      useFactory: async (jwtService: JwtService) => ({
+      useFactory: async () => ({
         autoSchemaFile: join(process.cwd(), 'src/schema.gql'),
         playground: false,
         introspection: true,

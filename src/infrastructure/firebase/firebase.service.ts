@@ -94,6 +94,32 @@ export class FirebaseService implements OnModuleInit {
     return this.firestore;
   }
 
+  /**
+   * Firebase Auth de la app default (proyecto `asistentes-df`),
+   * fuente de verdad de la identidad para la App AS.
+   */
+  getAuth(): admin.auth.Auth {
+    return admin.auth();
+  }
+
+  /**
+   * Súper-colección raíz `users` en Firestore de la app default.
+   * Cada documento se identifica con el `uid` de Firebase Auth.
+   */
+  getUsersCollectionRef(): admin.firestore.CollectionReference {
+    return this.firestore.collection('users');
+  }
+
+  /**
+   * Inyecta los roles del usuario como custom claim `roles` en su token de
+   * Firebase Auth, para que las Reglas de Firestore autoricen sin consultar
+   * Postgres. Se tipa como `string[]` para no acoplar la capa de infraestructura
+   * al enum de dominio `ValidRoles`.
+   */
+  async setUserRolesClaim(uid: string, roles: string[]): Promise<void> {
+    await this.getAuth().setCustomUserClaims(uid, { roles });
+  }
+
   getCollectionRef(
     company: string,
     plant: string,

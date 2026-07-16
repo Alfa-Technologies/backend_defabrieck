@@ -1,34 +1,17 @@
 import { Module } from '@nestjs/common';
-import { ConfigModule, ConfigService } from '@nestjs/config';
-import { PassportModule } from '@nestjs/passport';
-import { JwtModule } from '@nestjs/jwt';
 
-import { AuthService } from './auth.service';
 import { AuthResolver } from './auth.resolver';
+import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { UsersModule } from '../users/users.module';
-import { JwtStrategy } from './strategies/jwt.strategy';
 
+/**
+ * Módulo de autenticación reducido: tras migrar a Firebase Auth como IdP, ya no
+ * emitimos ni validamos JWT propios. Solo provee el `JwtAuthGuard` (verificación
+ * de idToken de Firebase) y la query `me`. FirebaseModule es `@Global`.
+ */
 @Module({
-  providers: [AuthResolver, AuthService, JwtStrategy],
-  exports: [JwtStrategy, PassportModule, JwtModule],
-  imports: [
-    ConfigModule,
-    UsersModule,
-
-    PassportModule.register({ defaultStrategy: 'jwt' }),
-
-    JwtModule.registerAsync({
-      imports: [ConfigModule],
-      inject: [ConfigService],
-      useFactory: (configService: ConfigService) => {
-        return {
-          secret: configService.get('JWT_SECRET'),
-          signOptions: {
-            expiresIn: '12h',
-          },
-        };
-      },
-    }),
-  ],
+  imports: [UsersModule],
+  providers: [AuthResolver, JwtAuthGuard],
+  exports: [JwtAuthGuard],
 })
 export class AuthModule {}

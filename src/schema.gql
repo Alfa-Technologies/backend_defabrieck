@@ -275,6 +275,7 @@ type User {
   email: String!
   roles: [ValidRoles!]!
   isActive: Boolean!
+  firebaseUid: String
   createdBy: String
   createdAt: String
   lastUpdateBy: String
@@ -300,9 +301,15 @@ enum ValidRoles {
   user
 }
 
-type AuthResponse {
-  token: String!
-  user: User!
+type SyncClaimsResult {
+  """Total de usuarios procesados"""
+  total: Int!
+
+  """Usuarios sincronizados exitosamente"""
+  synced: Int!
+
+  """Usuarios que fallaron al sincronizar"""
+  failed: Int!
 }
 
 type VisualAidLog {
@@ -748,7 +755,6 @@ enum SettlementStatus {
 scalar DateDDMMYYYY
 
 type Query {
-  revalite: AuthResponse!
   users(
     roles: [ValidRoles!] = []
 
@@ -759,6 +765,7 @@ type Query {
     limit: Int = 10
   ): [User!]!
   user(id: ID!): User!
+  me: User!
   employees(
     """Número de registros a omitir"""
     offset: Int = 0
@@ -987,10 +994,10 @@ type Query {
 }
 
 type Mutation {
-  login(loginInput: LoginInput!): AuthResponse!
   createUser(createUserInput: CreateUserInput!): User!
   updateUser(updateUserInput: UpdateUserInput!): User!
   changeUserStatus(id: ID!, isActive: Boolean!): User!
+  syncAllFirebaseClaims: SyncClaimsResult!
   createEmployee(createEmployeeInput: CreateEmployeeInput!): Employee!
   updateEmployee(updateEmployeeInput: UpdateEmployeeInput!): Employee!
   removeEmployee(id: ID!, isActive: Boolean!): Employee!
@@ -1077,11 +1084,6 @@ type Mutation {
   createSettlement(createSettlementInput: CreateSettlementInput!): Settlement!
   updateSettlement(updateSettlementInput: UpdateSettlementInput!): Settlement!
   changeSettlementStatus(id: ID!, isActive: Boolean!): Settlement!
-}
-
-input LoginInput {
-  email: String!
-  password: String!
 }
 
 input CreateUserInput {

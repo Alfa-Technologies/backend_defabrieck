@@ -22,6 +22,7 @@ import { GetUsersArgs } from './args/get-users.args';
 import { CompanyContact } from 'src/crm/company-contacts/entities/company-contact.entity';
 import { Employee } from '../employees/entities/employee.entity';
 import { UsersLoader } from './users.loader';
+import { SyncClaimsResult } from './types/sync-claims-result.type';
 
 @Resolver(() => User)
 @UseGuards(JwtAuthGuard)
@@ -67,6 +68,13 @@ export class UsersResolver {
     @CurrentUser([ValidRoles.superUser, ValidRoles.admin]) user: User,
   ): Promise<User> {
     return this.usersService.remove(id, isActive, user);
+  }
+
+  @Mutation(() => SyncClaimsResult, { name: 'syncAllFirebaseClaims' })
+  async syncAllFirebaseClaims(
+    @CurrentUser([ValidRoles.superUser, ValidRoles.admin]) _user: User,
+  ): Promise<SyncClaimsResult> {
+    return this.usersService.syncAllFirebaseClaims();
   }
 
   @ResolveField(() => Employee, { nullable: true })
