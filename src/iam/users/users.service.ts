@@ -234,11 +234,12 @@ export class UsersService {
     adminUser: User,
   ): Promise<User> {
     // password/isActive se excluyen del update relacional: la contraseña vive en
-    // Firebase Auth y el estado se maneja vía changeUserStatus.
-    const { id: _, password: __, isActive, ...toUpdate } = updateUserInput as any;
+    // Firebase Auth (se cambia aparte) y el estado se maneja vía changeUserStatus.
+    const { id: _, password, isActive, ...toUpdate } = updateUserInput as any;
 
     // Solo re-sincronizamos claims si el input trae un cambio de roles.
     const rolesProvided = updateUserInput.roles !== undefined;
+    const passwordProvided = password !== undefined;
 
     const user = await this.userRepository.preload({
       id,
@@ -250,6 +251,15 @@ export class UsersService {
         `No se encontró el usuario con el ID ${id}. Verifique que el identificador sea correcto.`,
       );
 
+    // Fail-fast: si se pide cambiar la contraseña, el usuario debe tener cuenta de
+    // Firebase. Se valida ANTES de tocar Postgres para no dejar el registro
+    // actualizado con la contraseña sin cambiar.
+    if (passwordProvided && !user.firebaseUid) {
+      throw new BadRequestException(
+        'Este usuario no tiene una cuenta de Firebase asociada; no se puede cambiar la contraseña.',
+      );
+    }
+
     user.lastUpdateBy = adminUser.id;
 
     let savedUser: User;
@@ -257,6 +267,23 @@ export class UsersService {
       savedUser = await this.userRepository.save(user);
     } catch (error) {
       this.handleDBErrors(error);
+    }
+
+    // Cambio de contraseña en Firebase Auth (operación administrativa).
+    if (passwordProvided) {
+      try {
+        await this.firebaseService
+          .getAuth()
+          .updateUser(savedUser.firebaseUid!, { password });
+      } catch (pwError) {
+        this.logger.error(
+          `Fallo al cambiar la contraseña del usuario ${id}`,
+          pwError,
+        );
+        throw new InternalServerErrorException(
+          'El usuario se actualizó pero no se pudo cambiar la contraseña. Reintente.',
+        );
+      }
     }
 
     // Espejar los nuevos roles al token de Firebase. Postgres ya quedó actualizado
