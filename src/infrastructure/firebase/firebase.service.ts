@@ -120,6 +120,18 @@ export class FirebaseService implements OnModuleInit {
     await this.getAuth().setCustomUserClaims(uid, { roles });
   }
 
+  /**
+   * Actualiza (merge) el documento `users/{uid}` en Firestore, sin pisar los
+   * campos no incluidos en `data`. Usado para mantener coherencia con Postgres
+   * (displayName, isActive, etc.) al editar un usuario.
+   */
+  async updateUserDoc(
+    uid: string,
+    data: Record<string, unknown>,
+  ): Promise<void> {
+    await this.getUsersCollectionRef().doc(uid).set(data, { merge: true });
+  }
+
   getCollectionRef(
     company: string,
     plant: string,

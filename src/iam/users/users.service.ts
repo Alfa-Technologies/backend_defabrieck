@@ -159,6 +159,66 @@ export class UsersService {
    * no dejar cuentas huérfanas. Se envuelve en try/catch para que un fallo al
    * limpiar no oculte el error original.
    */
+  /**
+   * Sincroniza la relación inversa del vínculo (employees.user_id /
+   * company_contacts.user_id), que es lo que lee el loader. Libera el vínculo
+   * anterior y asigna el nuevo, validando que el nuevo no tenga ya otro usuario.
+   */
+  private async syncInverseLink(
+    previous: User,
+    savedUser: User,
+  ): Promise<void> {
+    const prevEmployeeId = previous.employeeId ?? null;
+    const prevContactId = previous.companyContactId ?? null;
+    const newEmployeeId = savedUser.employeeId ?? null;
+    const newContactId = savedUser.companyContactId ?? null;
+
+    // Liberar vínculos anteriores que hayan cambiado. `() => 'NULL'` es la forma
+    // idiomática de TypeORM para setear la columna a NULL en un update.
+    if (prevEmployeeId && prevEmployeeId !== newEmployeeId) {
+      await this.employeeRepository.update(prevEmployeeId, {
+        userId: () => 'NULL',
+      });
+    }
+    if (prevContactId && prevContactId !== newContactId) {
+      await this.contactRepository.update(prevContactId, {
+        userId: () => 'NULL',
+      });
+    }
+
+    // Asignar el nuevo empleado (si cambió), validando que esté libre.
+    if (newEmployeeId && newEmployeeId !== prevEmployeeId) {
+      const employee = await this.employeeRepository.findOne({
+        where: { id: newEmployeeId },
+      });
+      if (!employee)
+        throw new NotFoundException('El empleado seleccionado no existe.');
+      if (employee.userId && employee.userId !== savedUser.id)
+        throw new ConflictException(
+          'Este empleado ya tiene un usuario asignado.',
+        );
+      await this.employeeRepository.update(newEmployeeId, {
+        userId: savedUser.id,
+      });
+    }
+
+    // Asignar el nuevo contacto (si cambió), validando que esté libre.
+    if (newContactId && newContactId !== prevContactId) {
+      const contact = await this.contactRepository.findOne({
+        where: { id: newContactId },
+      });
+      if (!contact)
+        throw new NotFoundException('El contacto seleccionado no existe.');
+      if (contact.userId && contact.userId !== savedUser.id)
+        throw new ConflictException(
+          'Este contacto ya tiene un usuario asignado.',
+        );
+      await this.contactRepository.update(newContactId, {
+        userId: savedUser.id,
+      });
+    }
+  }
+
   private async rollbackFirebaseUser(
     uid: string | undefined,
     firestoreCreated: boolean,
@@ -240,6 +300,16 @@ export class UsersService {
     // Solo re-sincronizamos claims si el input trae un cambio de roles.
     const rolesProvided = updateUserInput.roles !== undefined;
     const passwordProvided = password !== undefined;
+    const vinculoChanged =
+      updateUserInput.employeeId !== undefined ||
+      updateUserInput.companyContactId !== undefined;
+
+    // Estado previo del vínculo (para liberar la relación inversa anterior).
+    const previous = await this.userRepository.findOne({ where: { id } });
+    if (!previous)
+      throw new NotFoundException(
+        `No se encontró el usuario con el ID ${id}. Verifique que el identificador sea correcto.`,
+      );
 
     const user = await this.userRepository.preload({
       id,
@@ -269,6 +339,13 @@ export class UsersService {
       this.handleDBErrors(error);
     }
 
+    // Mantener la relación inversa (employees.user_id / company_contacts.user_id),
+    // que es la fuente de verdad del vínculo que lee el loader. Al cambiar el
+    // vínculo: liberar el anterior y asignar el nuevo (como en create()).
+    if (vinculoChanged) {
+      await this.syncInverseLink(previous, savedUser);
+    }
+
     // Cambio de contraseña en Firebase Auth (operación administrativa).
     if (passwordProvided) {
       try {
@@ -294,6 +371,11 @@ export class UsersService {
           savedUser.firebaseUid,
           savedUser.roles,
         );
+        // Espejar los roles también al doc Firestore users/{uid} (para las reglas
+        // y para que el perfil quede consistente con el token).
+        await this.firebaseService.updateUserDoc(savedUser.firebaseUid, {
+          roles: savedUser.roles,
+        });
       } catch (claimError) {
         this.logger.error(
           `Usuario ${id} actualizado en PG pero falló la sync de claims`,
@@ -302,6 +384,42 @@ export class UsersService {
         throw new InternalServerErrorException(
           'El usuario se actualizó pero no se pudieron sincronizar sus permisos en Firebase. Reintente la sincronización.',
         );
+      }
+    }
+
+    // Si cambió el vínculo, recalcular el displayName y espejarlo a Firebase.
+    if (vinculoChanged && savedUser.firebaseUid) {
+      let displayName: string | undefined;
+      if (savedUser.employeeId) {
+        const emp = await this.employeeRepository.findOne({
+          where: { id: savedUser.employeeId },
+        });
+        if (emp) displayName = `${emp.firstName} ${emp.lastName}`.trim();
+      } else if (savedUser.companyContactId) {
+        const con = await this.contactRepository.findOne({
+          where: { id: savedUser.companyContactId },
+        });
+        if (con) displayName = `${con.firstName} ${con.lastName}`.trim();
+      }
+
+      // Si se desvinculó (ambos null), no hay fuente de nombre: se conserva el actual.
+      if (displayName) {
+        try {
+          await this.firebaseService
+            .getAuth()
+            .updateUser(savedUser.firebaseUid, { displayName });
+          await this.firebaseService.updateUserDoc(savedUser.firebaseUid, {
+            displayName,
+          });
+        } catch (nameError) {
+          this.logger.error(
+            `Usuario ${id} actualizado en PG pero falló la sync del nombre`,
+            nameError,
+          );
+          throw new InternalServerErrorException(
+            'El usuario se actualizó pero no se pudo sincronizar el nombre en Firebase. Reintente.',
+          );
+        }
       }
     }
 
@@ -314,7 +432,30 @@ export class UsersService {
     user.isActive = isActive;
     user.lastUpdateBy = adminUser.id;
 
-    return await this.userRepository.save(user);
+    const savedUser = await this.userRepository.save(user);
+
+    // Espejar el estado a Firebase: deshabilitar la cuenta en Auth (bloquea el
+    // login del usuario desactivado) y sincronizar el doc Firestore.
+    if (savedUser.firebaseUid) {
+      try {
+        await this.firebaseService
+          .getAuth()
+          .updateUser(savedUser.firebaseUid, { disabled: !isActive });
+        await this.firebaseService.updateUserDoc(savedUser.firebaseUid, {
+          isActive,
+        });
+      } catch (statusError) {
+        this.logger.error(
+          `Estado del usuario ${id} actualizado en PG pero falló la sync en Firebase`,
+          statusError,
+        );
+        throw new InternalServerErrorException(
+          'El estado se actualizó en la base pero no se pudo sincronizar en Firebase. Reintente.',
+        );
+      }
+    }
+
+    return savedUser;
   }
 
   /**
