@@ -29,6 +29,7 @@ async function bootstrap() {
       'http://localhost:3002',
       'http://localhost:5173',
       'https://as.defabrieck.com',
+      'https://saltillo-general.defabrieck.com',
       process.env.FRONTEND_URL,
     ].filter(Boolean),
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
