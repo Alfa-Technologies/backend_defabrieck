@@ -76,12 +76,25 @@ export class EmployeesService {
     }
   }
 
+  // Filtro fijo: este query solo alimenta el buscador de personal de
+  // planta (asistencia), que únicamente debe mostrar empleados del
+  // departamento de Operaciones -- no es un filtro configurable por
+  // cliente, es una regla de negocio de este query en particular.
+  private static readonly OPERATIONS_DEPARTMENT_NAME = 'Operaciones';
+
   async findAll(args: GetEmployeesArgs): Promise<Employee[]> {
     const { limit, offset, search } = args;
     const term = search?.trim();
 
+    const departmentFilter = {
+      departmentRelation: {
+        name: EmployeesService.OPERATIONS_DEPARTMENT_NAME,
+      },
+    };
+
     if (!term) {
       return this.employeesRepository.find({
+        where: departmentFilter,
         take: limit,
         skip: offset,
       });
@@ -89,10 +102,10 @@ export class EmployeesService {
 
     return this.employeesRepository.find({
       where: [
-        { firstName: ILike(`%${term}%`) },
-        { lastName: ILike(`%${term}%`) },
-        { email: ILike(`%${term}%`) },
-        { employeeCode: ILike(`%${term}%`) },
+        { ...departmentFilter, firstName: ILike(`%${term}%`) },
+        { ...departmentFilter, lastName: ILike(`%${term}%`) },
+        { ...departmentFilter, email: ILike(`%${term}%`) },
+        { ...departmentFilter, employeeCode: ILike(`%${term}%`) },
       ],
       take: limit,
       skip: offset,
