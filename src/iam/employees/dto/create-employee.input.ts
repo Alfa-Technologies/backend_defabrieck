@@ -72,23 +72,41 @@ export class CreateEmployeeInput {
   })
   employeeCode: string;
 
-  @Field(() => String)
+  @Field(() => String, {
+    nullable: true,
+    deprecationReason: 'Use positionId instead',
+  })
   @Transform(({ value }) => value?.trim())
   @IsString({ message: 'El puesto debe ser un texto válido.' })
-  @IsNotEmpty({ message: 'El puesto es obligatorio.' })
+  @IsOptional()
   @MaxLength(50, {
     message: 'El puesto no puede exceder los $constraint1 caracteres.',
   })
-  position: string;
+  position?: string;
 
-  @Field(() => String)
+  @Field(() => String, {
+    nullable: true,
+    deprecationReason: 'Use departmentId instead',
+  })
   @Transform(({ value }) => value?.trim())
   @IsString({ message: 'El departamento debe ser un texto válido.' })
-  @IsNotEmpty({ message: 'El departamento es obligatorio.' })
+  @IsOptional()
   @MaxLength(50, {
     message: 'El departamento no puede exceder los $constraint1 caracteres.',
   })
-  department: string;
+  department?: string;
+
+  @Field(() => String, { nullable: true })
+  @IsUUID('4', { message: 'El ID del puesto proporcionado no es válido.' })
+  @IsOptional()
+  positionId?: string;
+
+  @Field(() => String, { nullable: true })
+  @IsUUID('4', {
+    message: 'El ID del departamento proporcionado no es válido.',
+  })
+  @IsOptional()
+  departmentId?: string;
 
   @Field(() => String, { nullable: true, description: 'CURP del empleado' })
   @Transform(({ value }) => value?.trim()?.toUpperCase())

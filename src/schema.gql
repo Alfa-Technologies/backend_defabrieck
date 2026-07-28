@@ -22,6 +22,26 @@ type Beneficiary {
   updatedAt: String!
 }
 
+type Department {
+  id: ID!
+  name: String!
+  description: String
+  isActive: Boolean!
+  createdAt: String!
+  updatedAt: String!
+}
+
+type Position {
+  id: ID!
+  name: String!
+  description: String
+  departmentId: String
+  department: Department
+  isActive: Boolean!
+  createdAt: String!
+  updatedAt: String!
+}
+
 type Employee {
   id: ID!
   firstName: String!
@@ -31,8 +51,12 @@ type Employee {
   user: User
   userId: String
   employeeCode: String!
-  position: String!
-  department: String!
+  position: String @deprecated(reason: "Use positionId instead")
+  department: String @deprecated(reason: "Use departmentId instead")
+  positionId: String
+  positionRelation: Position
+  departmentId: String
+  departmentRelation: Department
   isActive: Boolean!
   createdAt: String!
   updatedAt: String!
@@ -778,6 +802,11 @@ type Query {
   user(id: ID!): User!
   me: User!
   employees(
+    """
+    Texto libre para buscar por nombre, apellido, correo o código de empleado.
+    """
+    search: String
+
     """Número de registros a omitir"""
     offset: Int = 0
 
@@ -866,6 +895,22 @@ type Query {
     limit: Int = 10
   ): [DowntimeReason!]!
   downtimeReason(id: ID!): DowntimeReason!
+  departments(
+    """Número de registros a omitir"""
+    offset: Int = 0
+
+    """Límite de registros por página"""
+    limit: Int = 10
+  ): [Department!]!
+  department(id: ID!): Department!
+  positions(
+    """Número de registros a omitir"""
+    offset: Int = 0
+
+    """Límite de registros por página"""
+    limit: Int = 10
+  ): [Position!]!
+  position(id: ID!): Position!
   projects(
     """Número de registros a omitir"""
     offset: Int = 0
@@ -1054,6 +1099,12 @@ type Mutation {
   createDowntimeReason(createDowntimeReasonInput: CreateDowntimeReasonInput!): DowntimeReason!
   updateDowntimeReason(updateDowntimeReasonInput: UpdateDowntimeReasonInput!): DowntimeReason!
   removeDowntimeReason(id: ID!, isActive: Boolean!): DowntimeReason!
+  createDepartment(createDepartmentInput: CreateDepartmentInput!): Department!
+  updateDepartment(updateDepartmentInput: UpdateDepartmentInput!): Department!
+  removeDepartment(id: ID!, isActive: Boolean! = false): Department!
+  createPosition(createPositionInput: CreatePositionInput!): Position!
+  updatePosition(updatePositionInput: UpdatePositionInput!): Position!
+  removePosition(id: ID!, isActive: Boolean! = false): Position!
   createProject(createProjectInput: CreateProjectInput!): Project!
   updateProject(updateProjectInput: UpdateProjectInput!): Project!
   removeProject(id: ID!, isActive: Boolean! = false): Project!
@@ -1132,8 +1183,10 @@ input CreateEmployeeInput {
   email: String
   phoneNumber: String
   employeeCode: String!
-  position: String!
-  department: String!
+  position: String @deprecated(reason: "Use positionId instead")
+  department: String @deprecated(reason: "Use departmentId instead")
+  positionId: String
+  departmentId: String
 
   """CURP del empleado"""
   curp: String
@@ -1198,6 +1251,8 @@ input UpdateEmployeeInput {
   employeeCode: String
   position: String
   department: String
+  positionId: String
+  departmentId: String
 
   """CURP del empleado"""
   curp: String
@@ -1427,6 +1482,30 @@ input UpdateDowntimeReasonInput {
   name: String
   isBillable: Boolean
   category: String
+  id: ID!
+}
+
+input CreateDepartmentInput {
+  name: String!
+  description: String
+}
+
+input UpdateDepartmentInput {
+  name: String
+  description: String
+  id: ID!
+}
+
+input CreatePositionInput {
+  name: String!
+  description: String
+  departmentId: String
+}
+
+input UpdatePositionInput {
+  name: String
+  description: String
+  departmentId: String
   id: ID!
 }
 

@@ -8,10 +8,13 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   OneToMany,
+  ManyToOne,
 } from 'typeorm';
 import { User } from '../../users/entities/user.entity';
 import { Beneficiary } from './beneficiary.entity';
 import { DateDDMMYYYYScalar } from '../../../common/scalars/date.scalar';
+import { Department } from '../../../catalogs/departments/entities/department.entity';
+import { Position } from '../../../catalogs/positions/entities/position.entity';
 
 @ObjectType()
 @Entity({ name: 'employees' })
@@ -49,13 +52,37 @@ export class Employee {
   @Column('text', { unique: true })
   employeeCode: string;
 
-  @Field(() => String)
-  @Column('text')
-  position: string;
+  @Field(() => String, {
+    nullable: true,
+    deprecationReason: 'Use positionId instead',
+  })
+  @Column('text', { nullable: true })
+  position?: string;
 
-  @Field(() => String)
-  @Column('text')
-  department: string;
+  @Field(() => String, {
+    nullable: true,
+    deprecationReason: 'Use departmentId instead',
+  })
+  @Column('text', { nullable: true })
+  department?: string;
+
+  @Field(() => String, { nullable: true })
+  @Column('uuid', { name: 'position_id', nullable: true })
+  positionId?: string;
+
+  @Field(() => Position, { nullable: true })
+  @ManyToOne(() => Position, { eager: true, nullable: true })
+  @JoinColumn({ name: 'position_id' })
+  positionRelation?: Position;
+
+  @Field(() => String, { nullable: true })
+  @Column('uuid', { name: 'department_id', nullable: true })
+  departmentId?: string;
+
+  @Field(() => Department, { nullable: true })
+  @ManyToOne(() => Department, { eager: true, nullable: true })
+  @JoinColumn({ name: 'department_id' })
+  departmentRelation?: Department;
 
   @Field(() => Boolean)
   @Column('bool', { default: true })

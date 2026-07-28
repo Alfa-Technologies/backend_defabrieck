@@ -28,6 +28,8 @@ import { VisualAidDocumentsModule } from './catalogs/visual-aid-documents/visual
 import { VisualAidItemsModule } from './catalogs/visual-aid-items/visual-aid-items.module';
 import { DefectTypesModule } from './catalogs/defect-types/defect-types.module';
 import { DowntimeReasonsModule } from './catalogs/downtime-reasons/downtime-reasons.module';
+import { DepartmentsModule } from './catalogs/departments/departments.module';
+import { PositionsModule } from './catalogs/positions/positions.module';
 
 // Operations Modules
 import { ProjectsModule } from './operations/projects/projects.module';
@@ -118,6 +120,8 @@ import { FirebaseModule } from './infrastructure/firebase';
     VisualAidItemsModule,
     DefectTypesModule,
     DowntimeReasonsModule,
+    DepartmentsModule,
+    PositionsModule,
 
     // Operations Modules
     ProjectsModule,

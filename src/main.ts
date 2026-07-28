@@ -30,6 +30,7 @@ async function bootstrap() {
       'http://localhost:5173',
       'https://as.defabrieck.com',
       'https://saltillo-general.defabrieck.com',
+      'https://cuestionario-sustentabilidad.defabrieck.com',
       process.env.FRONTEND_URL,
     ].filter(Boolean),
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
