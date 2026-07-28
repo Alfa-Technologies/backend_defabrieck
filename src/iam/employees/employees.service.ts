@@ -7,12 +7,12 @@ import {
   HttpException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { ILike, Repository } from 'typeorm';
 import { CreateEmployeeInput, UpdateEmployeeInput } from './dto';
 import { Employee } from './entities/employee.entity';
 import { Beneficiary } from './entities/beneficiary.entity';
 import { User } from '../users/entities/user.entity';
-import { PaginationArgs } from '../../common/dto/args/pagination.args';
+import { GetEmployeesArgs } from './args/get-employees.args';
 
 @Injectable()
 export class EmployeesService {
@@ -76,9 +76,24 @@ export class EmployeesService {
     }
   }
 
-  async findAll(paginationArgs: PaginationArgs): Promise<Employee[]> {
-    const { limit, offset } = paginationArgs;
+  async findAll(args: GetEmployeesArgs): Promise<Employee[]> {
+    const { limit, offset, search } = args;
+    const term = search?.trim();
+
+    if (!term) {
+      return this.employeesRepository.find({
+        take: limit,
+        skip: offset,
+      });
+    }
+
     return this.employeesRepository.find({
+      where: [
+        { firstName: ILike(`%${term}%`) },
+        { lastName: ILike(`%${term}%`) },
+        { email: ILike(`%${term}%`) },
+        { employeeCode: ILike(`%${term}%`) },
+      ],
       take: limit,
       skip: offset,
     });

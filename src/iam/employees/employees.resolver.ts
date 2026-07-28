@@ -8,14 +8,17 @@ import {
   Parent,
   Float,
 } from '@nestjs/graphql';
-import { ParseUUIDPipe } from '@nestjs/common';
+import { ParseUUIDPipe, UseGuards } from '@nestjs/common';
 import { EmployeesService } from './employees.service';
 import { Employee } from './entities/employee.entity';
 import { Beneficiary } from './entities/beneficiary.entity';
 import { CreateEmployeeInput, UpdateEmployeeInput } from './dto';
-import { PaginationArgs } from '../../common/dto/args/pagination.args';
+import { GetEmployeesArgs } from './args/get-employees.args';
 import { User } from '../users/entities/user.entity';
 import { EmployeesLoader } from './employees.loader';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { CurrentUser } from '../auth/decorators/current-user.decorator';
+import { ValidRoles } from '../auth/enums/valid-roles.enum';
 
 @Resolver(() => Employee)
 export class EmployeesResolver {
@@ -32,8 +35,17 @@ export class EmployeesResolver {
   }
 
   @Query(() => [Employee], { name: 'employees' })
-  findAll(@Args() paginationArgs: PaginationArgs): Promise<Employee[]> {
-    return this.employeesService.findAll(paginationArgs);
+  @UseGuards(JwtAuthGuard)
+  findAll(
+    @Args() args: GetEmployeesArgs,
+    @CurrentUser([
+      ValidRoles.superUser,
+      ValidRoles.admin,
+      ValidRoles.coordinator,
+    ])
+    _user: User,
+  ): Promise<Employee[]> {
+    return this.employeesService.findAll(args);
   }
 
   @Query(() => Employee, { name: 'employee' })
