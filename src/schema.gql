@@ -312,6 +312,17 @@ type SyncClaimsResult {
   failed: Int!
 }
 
+type Supplier {
+  id: ID!
+  name: String!
+  email: String!
+  phone: String!
+  address: String
+  isActive: Boolean!
+  createdAt: String!
+  updatedAt: String!
+}
+
 type VisualAidLog {
   id: ID!
   visualAid: VisualAidDocument!
@@ -798,6 +809,14 @@ type Query {
     limit: Int = 10
   ): [CompanyContact!]!
   companyContact(id: ID!): CompanyContact!
+  suppliers(
+    """Número de registros a omitir"""
+    offset: Int = 0
+
+    """Límite de registros por página"""
+    limit: Int = 10
+  ): [Supplier!]!
+  supplier(id: ID!): Supplier!
   reportTypes(
     """Número de registros a omitir"""
     offset: Int = 0
@@ -1011,6 +1030,9 @@ type Mutation {
   createCompanyContact(createCompanyContactInput: CreateCompanyContactInput!): CompanyContact!
   updateCompanyContact(updateCompanyContactInput: UpdateCompanyContactInput!): CompanyContact!
   removeCompanyContact(id: ID!, isActive: Boolean! = false): CompanyContact!
+  createSupplier(createSupplierInput: CreateSupplierInput!): Supplier!
+  updateSupplier(updateSupplierInput: UpdateSupplierInput!): Supplier!
+  removeSupplier(id: ID!, isActive: Boolean! = false): Supplier!
   createReportType(createReportTypeInput: CreateReportTypeInput!): ReportType!
   updateReportType(updateReportTypeInput: UpdateReportTypeInput!): ReportType!
   removeReportType(id: ID!, isActive: Boolean! = false): ReportType!
@@ -1292,6 +1314,21 @@ input UpdateCompanyContactInput {
   position: String
   isPrimary: Boolean
   id: String!
+}
+
+input CreateSupplierInput {
+  name: String!
+  email: String!
+  phone: String!
+  address: String
+}
+
+input UpdateSupplierInput {
+  name: String
+  email: String
+  phone: String
+  address: String
+  id: ID!
 }
 
 input CreateReportTypeInput {

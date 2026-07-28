@@ -19,6 +19,7 @@ import { EmployeesModule } from './iam/employees/employees.module';
 import { CompaniesModule } from './crm/companies/companies.module';
 import { PlantsModule } from './crm/plants/plants.module';
 import { CompanyContactsModule } from './crm/company-contacts/company-contacts.module';
+import { SuppliersModule } from './crm/suppliers/suppliers.module';
 
 // Catalogs Modules
 import { ReportTypesModule } from './catalogs/report-types/report-types.module';
@@ -108,6 +109,7 @@ import { FirebaseModule } from './infrastructure/firebase';
     CompaniesModule,
     PlantsModule,
     CompanyContactsModule,
+    SuppliersModule,
 
     // Catalogs Modules
     ReportTypesModule,
