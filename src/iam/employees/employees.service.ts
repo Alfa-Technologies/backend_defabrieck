@@ -76,21 +76,23 @@ export class EmployeesService {
     }
   }
 
-  // Filtro fijo: este query solo alimenta el buscador de personal de
-  // planta (asistencia), que únicamente debe mostrar empleados del
-  // departamento de Operaciones -- no es un filtro configurable por
-  // cliente, es una regla de negocio de este query en particular.
+  // Filtro opcional: el buscador de personal de planta (asistencia) pasa
+  // onlyOperations=true para restringirse al departamento de Operaciones.
+  // El resto de clientes (ej. el admin) no lo envían y ven todos los
+  // departamentos.
   private static readonly OPERATIONS_DEPARTMENT_NAME = 'Operaciones';
 
   async findAll(args: GetEmployeesArgs): Promise<Employee[]> {
-    const { limit, offset, search } = args;
+    const { limit, offset, search, onlyOperations } = args;
     const term = search?.trim();
 
-    const departmentFilter = {
-      departmentRelation: {
-        name: EmployeesService.OPERATIONS_DEPARTMENT_NAME,
-      },
-    };
+    const departmentFilter = onlyOperations
+      ? {
+          departmentRelation: {
+            name: EmployeesService.OPERATIONS_DEPARTMENT_NAME,
+          },
+        }
+      : {};
 
     if (!term) {
       return this.employeesRepository.find({

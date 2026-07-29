@@ -807,6 +807,11 @@ type Query {
     """
     search: String
 
+    """
+    Si es true, restringe el resultado solo a empleados del departamento de Operaciones. Usado por el buscador de personal de planta (asistencia). Por defecto no filtra por departamento.
+    """
+    onlyOperations: Boolean
+
     """Número de registros a omitir"""
     offset: Int = 0
 
