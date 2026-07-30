@@ -42,6 +42,7 @@ export class EmployeesResolver {
       ValidRoles.superUser,
       ValidRoles.admin,
       ValidRoles.coordinator,
+      ValidRoles.rh,
     ])
     _user: User,
   ): Promise<Employee[]> {
