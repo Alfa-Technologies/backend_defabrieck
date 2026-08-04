@@ -42,6 +42,8 @@ async function bootstrap() {
       'https://aptiv-84-general.defabrieck.com',
       'https://aptiv-97-general.defabrieck.com',
       'https://aptiv-98-general.defabrieck.com',
+      'https://dynacast.defabrieck.com',
+      'https://nemak-planta-motores.defabrieck.com',
       process.env.FRONTEND_URL,
     ].filter(Boolean),
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
