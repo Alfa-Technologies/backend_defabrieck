@@ -45,6 +45,7 @@ async function bootstrap() {
       'https://dynacast.defabrieck.com',
       'https://nemak-planta-motores.defabrieck.com',
       'https://os.defabrieck.com',
+      'https://general.defabrieck.com',
       process.env.FRONTEND_URL,
     ].filter(Boolean),
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
